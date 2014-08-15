@@ -199,7 +199,7 @@ func (c *Client) ManagedBackups(uid string) ([]ManagedBackup, error) {
 	return managedBackupsRes, c.DoReq(req, &managedBackupsRes)
 }
 
-func (c *Client) Set(uid string, key string, value string) (*GenericResponse, error) {
+func (c *Client) Set(uid string, key string, value string) (*AsyncResult, error) {
 	key = strings.Replace(key, ".", "-", -1)
 	params := struct {
 		Value string `json:"value"`
@@ -211,8 +211,8 @@ func (c *Client) Set(uid string, key string, value string) (*GenericResponse, er
 	if err != nil {
 		return nil, err
 	}
-	var settingRes *GenericResponse
-	return settingRes, c.DoReq(req, &settingRes)
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes)
 }
 
 func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int) (*AsyncResult, error) {
@@ -267,7 +267,7 @@ func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, 
 	if err != nil {
 		return nil, err
 	}
-	genericRes, err := c.WaitStackAsyncAction(asyncRes.Id, stackUid, 2*time.Second, 2*time.Minute)
+	genericRes, err := c.WaitStackAsyncAction(asyncRes.Id, stackUid, 2*time.Second, 5*time.Minute)
 	if err != nil {
 		return nil, err
 	}

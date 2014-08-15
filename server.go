@@ -70,19 +70,17 @@ func (c *Client) ServerSettings(stackUid string, serverUid string) ([]StackSetti
 	return settingsRes, c.DoReq(req, &settingsRes)
 }
 
-func (c *Client) ServerSet(stackUid string, serverUid string, key string, value string) (*GenericResponse, error) {
+func (c *Client) ServerSet(stackUid string, serverUid string, key string, value string) (*AsyncResult, error) {
 	key = strings.Replace(key, ".", "-", -1)
 	params := struct {
 		Value string `json:"value"`
 	}{
 		Value: value,
 	}
-
 	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/servers/"+serverUid+"/settings/"+key+".json", params)
 	if err != nil {
 		return nil, err
 	}
-
-	var settingRes *GenericResponse
-	return settingRes, c.DoReq(req, &settingRes)
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes)
 }
