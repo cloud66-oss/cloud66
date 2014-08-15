@@ -149,22 +149,34 @@ func (c *Client) StackEnvVars(uid string) ([]StackEnvVar, error) {
 	return envVarsRes, c.DoReq(req, &envVarsRes)
 }
 
-func (c *Client) StackEnvVarsSet(uid string, key string, value string) (*GenericResponse, error) {
+func (c *Client) StackEnvVarNew(stackUid string, key string, value string) (*AsyncResult, error) {
 	params := struct {
-		Key   string `json:"env_key"`
-		Value string `json:"env_value"`
+		Key   string `json:"key"`
+		Value string `json:"value"`
 	}{
 		Key:   key,
 		Value: value,
 	}
-
-	req, err := c.NewRequest("PUT", "/stacks/"+uid+"/environments/"+key+".json", params)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/environments.json", params)
 	if err != nil {
 		return nil, err
 	}
+	var asyncResult *AsyncResult
+	return asyncResult, c.DoReq(req, &asyncResult)
+}
 
-	var envVarsRes *GenericResponse
-	return envVarsRes, c.DoReq(req, &envVarsRes)
+func (c *Client) StackEnvVarSet(stackUid string, key string, value string) (*AsyncResult, error) {
+	params := struct {
+		Value string `json:"value"`
+	}{
+		Value: value,
+	}
+	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/environments/"+key+".json", params)
+	if err != nil {
+		return nil, err
+	}
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes)
 }
 
 func (c *Client) FindStackByName(stackName, environment string) (*Stack, error) {
@@ -206,7 +218,6 @@ func (c *Client) Set(uid string, key string, value string) (*AsyncResult, error)
 	}{
 		Value: value,
 	}
-	// fmt.Println("/stacks/" + uid + "/settings/" + key + ".json")
 	req, err := c.NewRequest("PUT", "/stacks/"+uid+"/settings/"+key+".json", params)
 	if err != nil {
 		return nil, err
@@ -216,13 +227,11 @@ func (c *Client) Set(uid string, key string, value string) (*AsyncResult, error)
 }
 
 func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int) (*AsyncResult, error) {
-
 	var (
 		theIpAddress  *string
 		theTimeToOpen *int
 		thePort       *int
 	)
-
 	// set defaults
 	if ipAddress == nil {
 		var value = "AUTO"
@@ -242,7 +251,6 @@ func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int
 	} else {
 		thePort = port
 	}
-
 	params := struct {
 		TimeToOpen *int    `json:"ttl"`
 		IpAddress  *string `json:"from_ip"`
@@ -252,12 +260,10 @@ func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int
 		IpAddress:  theIpAddress,
 		Port:       thePort,
 	}
-
 	req, err := c.NewRequest("POST", "/stacks/"+uid+"/firewalls.json", params)
 	if err != nil {
 		return nil, err
 	}
-
 	var asyncRes *AsyncResult
 	return asyncRes, c.DoReq(req, &asyncRes)
 }
@@ -293,6 +299,6 @@ func (c *Client) InvokeStackAction(stackUid string, action string) (*AsyncResult
 	if err != nil {
 		return nil, err
 	}
-	var stacksRes *AsyncResult
-	return stacksRes, c.DoReq(req, &stacksRes)
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes)
 }
