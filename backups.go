@@ -47,23 +47,34 @@ type ManagedBackup struct {
 	SkipTables    string    `json:"skip_tables"`
 }
 
-type BackupSegment struct {
-	Ok            bool   `json:"ok"`
-	Filename      string `json:"file_name"`
-	Url           string `json:"url"`
-	NextExtension string `json:"next_extension"`
+type BackupSegmentIndex struct {
+	Filename  string `json:"name"`
+	Extension string `json:"id"`
 }
 
-func (c *Client) GetBackupSegment(backupId int, extension string) (*BackupSegment, error) {
+type BackupSegment struct {
+	Ok  bool   `json:"ok"`
+	Url string `json:"public_url"`
+}
+
+func (c *Client) GetBackupSegmentIndeces(stackUid string, backupId int) ([]BackupSegmentIndex, error) {
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/backups/"+strconv.Itoa(backupId)+"/files.json", nil)
+	if err != nil {
+		return nil, err
+	}
+	var backupSegIndex []BackupSegmentIndex
+	return backupSegIndex, c.DoReq(req, &backupSegIndex)
+}
+
+func (c *Client) GetBackupSegment(stackUid string, backupId int, extension string) (*BackupSegment, error) {
 	ext := ""
 	if extension != "" {
 		ext = "/" + extension
 	}
-	req, err := c.NewRequest("GET", "/backups/"+strconv.Itoa(backupId)+"/export"+ext+".json", nil)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/backups/"+strconv.Itoa(backupId)+"/files/"+ext+".json", nil)
 	if err != nil {
 		return nil, err
 	}
-
 	var backupSegmentRes *BackupSegment
 	return backupSegmentRes, c.DoReq(req, &backupSegmentRes)
 }
