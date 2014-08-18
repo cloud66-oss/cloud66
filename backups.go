@@ -2,6 +2,7 @@ package cloud66
 
 import (
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -76,5 +77,13 @@ func (c *Client) GetBackupSegment(stackUid string, backupId int, extension strin
 		return nil, err
 	}
 	var backupSegmentRes *BackupSegment
-	return backupSegmentRes, c.DoReq(req, &backupSegmentRes)
+	err = c.DoReq(req, &backupSegmentRes)
+	if err != nil {
+		return nil, err
+	}
+
+	// fix percentage deserialize go bug
+	backupSegmentRes.Url = strings.Replace(backupSegmentRes.Url, "%25", "%", -1)
+	return backupSegmentRes, err
+
 }
