@@ -21,8 +21,8 @@ type Server struct {
 	StackUid         string      `json:"stack_uid"`
 	HasAgent         bool        `json:"has_agent"`
 	Params           interface{} `json:"params"`
-	CreatedAt        time.Time   `json:"created_at_iso"`
-	UpdatedAt        time.Time   `json:"updated_at_iso"`
+	CreatedAt        time.Time   `json:"created_at"`
+	UpdatedAt        time.Time   `json:"updated_at"`
 	Region           string      `json:"region"`
 	AvailabilityZone string      `json:"availability_zone"`
 	ExtIpV4          string      `json:"ext_ipv4"`
