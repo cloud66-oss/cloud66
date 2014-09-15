@@ -34,6 +34,15 @@ func (s Server) Health() string {
 	return healthStatus[s.HealthCode]
 }
 
+func (c *Client) Servers(stackUid string) ([]Server, error) {
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers.json", nil)
+	if err != nil {
+		return nil, err
+	}
+	var serversRes []Server
+	return serversRes, c.DoReq(req, &serversRes)
+}
+
 func (c *Client) ServerSshPrivateKey(stackUid string, serverUid string) (string, error) {
 	server, err := c.getServer(stackUid, serverUid, 1)
 	if err != nil {
@@ -83,4 +92,13 @@ func (c *Client) ServerSet(stackUid string, serverUid string, key string, value 
 	}
 	var asyncRes *AsyncResult
 	return asyncRes, c.DoReq(req, &asyncRes)
+}
+
+func (s *Server) HasRole(searchRole string) bool {
+	for _, role := range s.Roles {
+		if role == searchRole {
+			return true
+		}
+	}
+	return false
 }
