@@ -62,13 +62,29 @@ func (c *Client) StopService(stackUid string, serviceName string, serverUid *str
 	return asyncRes, c.DoReq(req, &asyncRes)
 }
 
+func (c *Client) ScaleService(stackUid string, serviceName string, serverCount map[string]int) (*AsyncResult, error) {
+	params := struct {
+		ServiceName string         `json:"service_name"`
+		ServerCount map[string]int `json:"server_count"`
+	}{
+		ServiceName: serviceName,
+		ServerCount: serverCount,
+	}
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/services.json", params)
+	if err != nil {
+		return nil, err
+	}
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes)
+}
+
 func (s *Service) ServerContainerCountMap() map[string]int {
 	var serverMap = make(map[string]int)
 	for _, container := range s.Containers {
-		if _, present := serverMap[container.ServerName]; !present {
-			serverMap[container.ServerName] = 1
-		} else {
+		if _, present := serverMap[container.ServerName]; present {
 			serverMap[container.ServerName] = serverMap[container.ServerName] + 1
+		} else {
+			serverMap[container.ServerName] = 1
 		}
 	}
 	return serverMap
