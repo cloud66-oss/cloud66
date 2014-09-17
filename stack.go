@@ -191,16 +191,6 @@ func (c *Client) FindStackByName(stackName, environment string) (*Stack, error) 
 	return nil, errors.New("Stack not found")
 }
 
-func (c *Client) Servers(uid string) ([]Server, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+uid+"/servers.json", nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var serversRes []Server
-	return serversRes, c.DoReq(req, &serversRes)
-}
-
 func (c *Client) ManagedBackups(uid string) ([]ManagedBackup, error) {
 	req, err := c.NewRequest("GET", "/stacks/"+uid+"/backups.json", nil)
 	if err != nil {
