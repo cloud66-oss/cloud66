@@ -14,7 +14,6 @@ type Server struct {
 	Distro           string      `json:"distro"`
 	DistroVersion    string      `json:"distro_version"`
 	DnsRecord        string      `json:"dns_record"`
-	UserName         string      `json:"user_name"`
 	ServerType       string      `json:"server_type"`
 	ServerGroupId    int         `json:"server_group_id"`
 	Roles            []string    `json:"server_roles"`
@@ -27,6 +26,8 @@ type Server struct {
 	AvailabilityZone string      `json:"availability_zone"`
 	ExtIpV4          string      `json:"ext_ipv4"`
 	HealthCode       int         `json:"health_state"`
+	UserName         string      `json:"user_name"`
+	PersonalKey      bool        `json:"personal_key"`
 	SshPrivateKey    *string     `json:"ssh_private_key"`
 }
 
@@ -43,7 +44,7 @@ func (c *Client) Servers(stackUid string) ([]Server, error) {
 	return serversRes, c.DoReq(req, &serversRes)
 }
 
-func (c *Client) ServerSshPrivateKey(stackUid string, serverUid string) (string, error) {
+func (c *Client) ServerKeyInformation(stackUid string, serverUid string) (string, error) {
 	server, err := c.getServer(stackUid, serverUid, 1)
 	if err != nil {
 		return "", err
