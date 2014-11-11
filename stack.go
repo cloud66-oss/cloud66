@@ -216,11 +216,12 @@ func (c *Client) Set(uid string, key string, value string) (*AsyncResult, error)
 	return asyncRes, c.DoReq(req, &asyncRes)
 }
 
-func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int) (*AsyncResult, error) {
+func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int, serverUid *string) (*AsyncResult, error) {
 	var (
 		theIpAddress  *string
 		theTimeToOpen *int
 		thePort       *int
+		theServerUid  *string
 	)
 	// set defaults
 	if ipAddress == nil {
@@ -241,14 +242,23 @@ func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int
 	} else {
 		thePort = port
 	}
+	if serverUid == nil {
+		var value = ""
+		theServerUid = &value
+	} else {
+		theServerUid = serverUid
+	}
+
 	params := struct {
 		TimeToOpen *int    `json:"ttl"`
 		IpAddress  *string `json:"from_ip"`
 		Port       *int    `json:"port"`
+		ServerUid  *string `json:"server_id"`
 	}{
 		TimeToOpen: theTimeToOpen,
 		IpAddress:  theIpAddress,
 		Port:       thePort,
+		ServerUid:  theServerUid,
 	}
 	req, err := c.NewRequest("POST", "/stacks/"+uid+"/firewalls.json", params)
 	if err != nil {
@@ -258,8 +268,8 @@ func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int
 	return asyncRes, c.DoReq(req, &asyncRes)
 }
 
-func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, port *int) (*GenericResponse, error) {
-	asyncRes, err := c.Lease(stackUid, ipAddress, timeToOpen, port)
+func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, port *int, serverUid *string) (*GenericResponse, error) {
+	asyncRes, err := c.Lease(stackUid, ipAddress, timeToOpen, port, serverUid)
 	if err != nil {
 		return nil, err
 	}
@@ -270,8 +280,13 @@ func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, 
 	return genericRes, err
 }
 
-func (c *Client) RedeployStack(uid string) (*GenericResponse, error) {
-	req, err := c.NewRequest("POST", "/stacks/"+uid+"/deployments.json", nil)
+func (c *Client) RedeployStack(stackUid string, gitRef string) (*GenericResponse, error) {
+	params := struct {
+		GitRef string `json:"git_ref"`
+	}{
+		GitRef: gitRef,
+	}
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/deployments.json", params)
 	if err != nil {
 		return nil, err
 	}
