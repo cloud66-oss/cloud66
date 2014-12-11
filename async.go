@@ -2,6 +2,7 @@ package cloud66
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -24,7 +25,7 @@ type AsyncResult struct {
 	FinishedMessage string     `json:"finished_message"`
 }
 
-func (c *Client) WaitStackAsyncAction(asyncId int, stackUid string, checkFrequency time.Duration, timeout time.Duration) (*GenericResponse, error) {
+func (c *Client) WaitStackAsyncAction(asyncId int, stackUid string, checkFrequency time.Duration, timeout time.Duration, showWorkingIndicator bool) (*GenericResponse, error) {
 	var timeoutTime = time.Now().Add(timeout)
 
 	// declare vars
@@ -49,6 +50,9 @@ func (c *Client) WaitStackAsyncAction(asyncId int, stackUid string, checkFrequen
 		}
 		// sleep for checkFrequency secs between lookup requests
 		time.Sleep(checkFrequency)
+		if showWorkingIndicator {
+			fmt.Printf(".")
+		}
 	}
 	// response
 	genericRes := GenericResponse{

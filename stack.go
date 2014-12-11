@@ -273,7 +273,7 @@ func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, 
 	if err != nil {
 		return nil, err
 	}
-	genericRes, err := c.WaitStackAsyncAction(asyncRes.Id, stackUid, 2*time.Second, 5*time.Minute)
+	genericRes, err := c.WaitStackAsyncAction(asyncRes.Id, stackUid, 2*time.Second, 5*time.Minute, false)
 	if err != nil {
 		return nil, err
 	}
@@ -299,6 +299,35 @@ func (c *Client) InvokeStackAction(stackUid string, action string) (*AsyncResult
 		Command string `json:"command"`
 	}{
 		Command: action,
+	}
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params)
+	if err != nil {
+		return nil, err
+	}
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes)
+}
+
+func (c *Client) InvokeDbStackAction(stackUid string, serverUid string, dbType *string, action string) (*AsyncResult, error) {
+	var params interface{}
+	if dbType == nil {
+		params = struct {
+			Command   string `json:"command"`
+			ServerUid string `json:"server_uid"`
+		}{
+			Command:   action,
+			ServerUid: serverUid,
+		}
+	} else {
+		params = struct {
+			Command   string `json:"command"`
+			ServerUid string `json:"server_uid"`
+			DbType    string `json:"db_type"`
+		}{
+			Command:   action,
+			ServerUid: serverUid,
+			DbType:    *dbType,
+		}
 	}
 	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params)
 	if err != nil {
