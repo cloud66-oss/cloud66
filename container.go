@@ -60,3 +60,12 @@ func (c *Client) StopContainer(stackUid string, containerUid string) (*AsyncResu
 	var asyncRes *AsyncResult
 	return asyncRes, c.DoReq(req, &asyncRes)
 }
+
+func (c *Client) RestartContainer(stackUid string, containerUid string) (*AsyncResult, error) {
+	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/containers/"+containerUid+".json", nil)
+	if err != nil {
+		return nil, err
+	}
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes)
+}
