@@ -89,3 +89,32 @@ func (s *Service) ServerContainerCountMap() map[string]int {
 	}
 	return serverMap
 }
+
+func (c *Client) InvokeStackServiceAction(stackUid string, serviceName string, serverUid *string, action string) (*AsyncResult, error) {
+	var params interface{}
+	if serverUid == nil {
+		params = struct {
+			Command     string `json:"command"`
+			ServiceName string `json:"service_name"`
+		}{
+			Command:     action,
+			ServiceName: serviceName,
+		}
+	} else {
+		params = struct {
+			Command     string `json:"command"`
+			ServiceName string `json:"service_name"`
+			ServerUid   string `json:"server_uid"`
+		}{
+			Command:     action,
+			ServiceName: serviceName,
+			ServerUid:   *serverUid,
+		}
+	}
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params)
+	if err != nil {
+		return nil, err
+	}
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes)
+}

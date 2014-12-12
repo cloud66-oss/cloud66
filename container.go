@@ -61,8 +61,15 @@ func (c *Client) StopContainer(stackUid string, containerUid string) (*AsyncResu
 	return asyncRes, c.DoReq(req, &asyncRes)
 }
 
-func (c *Client) RestartContainer(stackUid string, containerUid string) (*AsyncResult, error) {
-	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/containers/"+containerUid+".json", nil)
+func (c *Client) InvokeStackContainerAction(stackUid string, containerUid string, action string) (*AsyncResult, error) {
+	params := struct {
+		Command      string `json:"command"`
+		ContainerUid string `json:"container_id"`
+	}{
+		Command:      action,
+		ContainerUid: containerUid,
+	}
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params)
 	if err != nil {
 		return nil, err
 	}
