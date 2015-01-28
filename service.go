@@ -1,8 +1,9 @@
 package cloud66
 
 type Service struct {
-	Name       string      `json:"name"`
-	Containers []Container `json:"containers"`
+	Name        string      `json:"name"`
+	Containers  []Container `json:"containers"`
+	WrapCommand string      `json:"wrap_command"`
 }
 
 func (c *Client) GetServices(stackUid string, serverUid *string) ([]Service, error) {
@@ -24,15 +25,25 @@ func (c *Client) GetServices(stackUid string, serverUid *string) ([]Service, err
 	return serviceRes, c.DoReq(req, &serviceRes)
 }
 
-func (c *Client) GetService(stackUid string, serviceName string, serverUid *string) (*Service, error) {
+func (c *Client) GetService(stackUid string, serviceName string, serverUid *string, wrapCommand *string) (*Service, error) {
 	var params interface{}
 	if serverUid == nil {
 		params = nil
 	} else {
-		params = struct {
-			ServerUid string `json:"server_uid"`
-		}{
-			ServerUid: *serverUid,
+		if wrapCommand == nil {
+			params = struct {
+				ServerUid string `json:"server_uid"`
+			}{
+				ServerUid: *serverUid,
+			}
+		} else {
+			params = struct {
+				ServerUid   string `json:"server_uid"`
+				WrapCommand string `json:"wrap_command"`
+			}{
+				ServerUid:   *serverUid,
+				WrapCommand: *wrapCommand,
+			}
 		}
 	}
 	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/services/"+serviceName+".json", params)
