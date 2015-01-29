@@ -280,11 +280,13 @@ func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, 
 	return genericRes, err
 }
 
-func (c *Client) RedeployStack(stackUid string, gitRef string) (*GenericResponse, error) {
+func (c *Client) RedeployStack(stackUid string, gitRef string, servicesFilter string) (*GenericResponse, error) {
 	params := struct {
-		GitRef string `json:"git_ref"`
+		GitRef       string `json:"git_ref"`
+		ServiceNames string `json:"services_filter"`
 	}{
-		GitRef: gitRef,
+		GitRef:       gitRef,
+		ServiceNames: servicesFilter,
 	}
 	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/deployments.json", params)
 	if err != nil {
