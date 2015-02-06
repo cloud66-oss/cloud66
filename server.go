@@ -45,7 +45,7 @@ func (c *Client) Servers(stackUid string) ([]Server, error) {
 }
 
 func (c *Client) ServerKeyInformation(stackUid string, serverUid string) (string, error) {
-	server, err := c.getServer(stackUid, serverUid, 1)
+	server, err := c.GetServer(stackUid, serverUid, 1)
 	if err != nil {
 		return "", err
 	}
@@ -55,7 +55,7 @@ func (c *Client) ServerKeyInformation(stackUid string, serverUid string) (string
 	return *server.SshPrivateKey, nil
 }
 
-func (c *Client) getServer(stackUid string, serverUid string, includeSshKey int) (*Server, error) {
+func (c *Client) GetServer(stackUid string, serverUid string, includeSshKey int) (*Server, error) {
 	params := struct {
 		Value int `json:"include_private_key"`
 	}{
