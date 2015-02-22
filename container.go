@@ -2,17 +2,30 @@ package cloud66
 
 import "time"
 
+type Port struct {
+	Container int `json:"container"`
+	Http      int `json:"http"`
+	Https     int `json:"https"`
+}
+
 type Container struct {
-	Uid                 string    `json:"uid"`
-	ServerUid           string    `json:"server_uid"`
-	ServerName          string    `json:"server_name"`
-	ServiceName         string    `json:"service_name"`
-	Image               string    `json:"image"`
-	Command             string    `json:"command"`
-	StartedAt           time.Time `json:"started_at"`
-	CaptureStdoutStderr bool      `json:"capture_stdout_stderr"`
-	CreatedAt           time.Time `json:"created_at"`
-	UpdatedAt           time.Time `json:"updated_at"`
+	Uid             string    `json:"uid"`
+	ServerUid       string    `json:"server_uid"`
+	ServerName      string    `json:"server_name"`
+	ServiceName     string    `json:"service_name"`
+	Image           string    `json:"image"`
+	Command         string    `json:"command"`
+	Ports           []Port    `json:"ports"`
+	PrivateIP       string    `json:"private_ip"`
+	DockerIP        string    `json:"docker_ip"`
+	HealthState     int       `json:"health_state"`
+	HealthMessage   string    `json:"health_message"`
+	HealthSource    string    `json:"health_source"`
+	CaptureOutput   bool      `json:"capture_output"`
+	RestartOnDeploy bool      `json:"restart_on_deploy"`
+	StartedAt       time.Time `json:"started_at"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 func (c *Client) GetContainers(stackUid string, serverUid *string, serviceName *string) ([]Container, error) {
