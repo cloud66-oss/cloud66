@@ -8,6 +8,12 @@ type Port struct {
 	Https     int `json:"https"`
 }
 
+const (
+	CNT_HEALTH_UNVERIFIED = 0
+	CNT_HEALTH_UP         = 1
+	CNT_HEALTH_DOWN       = 2
+)
+
 type Container struct {
 	Uid             string    `json:"uid"`
 	ServerUid       string    `json:"server_uid"`
