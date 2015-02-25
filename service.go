@@ -1,5 +1,7 @@
 package cloud66
 
+import "strconv"
+
 type Service struct {
 	Name        string      `json:"name"`
 	Containers  []Container `json:"containers"`
@@ -17,12 +19,36 @@ func (c *Client) GetServices(stackUid string, serverUid *string) ([]Service, err
 			ServerUid: *serverUid,
 		}
 	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/services.json", params)
-	if err != nil {
-		return nil, err
-	}
+
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
+
+	var p Pagination
+	var result []Service
 	var serviceRes []Service
-	return serviceRes, c.DoReq(req, &serviceRes)
+
+	for {
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/services.json", params, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		serviceRes = nil
+		err = c.DoReq(req, &serviceRes, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, serviceRes...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
+	}
+
+	return result, nil
 }
 
 func (c *Client) GetService(stackUid string, serviceName string, serverUid *string, wrapCommand *string) (*Service, error) {
@@ -46,12 +72,12 @@ func (c *Client) GetService(stackUid string, serviceName string, serverUid *stri
 			}
 		}
 	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/services/"+serviceName+".json", params)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/services/"+serviceName+".json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var servicesRes *Service
-	return servicesRes, c.DoReq(req, &servicesRes)
+	return servicesRes, c.DoReq(req, &servicesRes, nil)
 }
 
 func (c *Client) StopService(stackUid string, serviceName string, serverUid *string) (*AsyncResult, error) {
@@ -65,12 +91,12 @@ func (c *Client) StopService(stackUid string, serviceName string, serverUid *str
 			ServerUid: *serverUid,
 		}
 	}
-	req, err := c.NewRequest("DELETE", "/stacks/"+stackUid+"/services/"+serviceName+".json", params)
+	req, err := c.NewRequest("DELETE", "/stacks/"+stackUid+"/services/"+serviceName+".json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
 func (c *Client) ScaleService(stackUid string, serviceName string, serverCount map[string]int) (*AsyncResult, error) {
@@ -81,12 +107,12 @@ func (c *Client) ScaleService(stackUid string, serviceName string, serverCount m
 		ServiceName: serviceName,
 		ServerCount: serverCount,
 	}
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/services.json", params)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/services.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
 func (s *Service) ServerContainerCountMap() map[string]int {
@@ -122,10 +148,10 @@ func (c *Client) InvokeStackServiceAction(stackUid string, serviceName string, s
 			ServerUid:   *serverUid,
 		}
 	}
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }

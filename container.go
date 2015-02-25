@@ -1,6 +1,9 @@
 package cloud66
 
-import "time"
+import (
+	"strconv"
+	"time"
+)
 
 type Port struct {
 	Container int `json:"container"`
@@ -54,30 +57,55 @@ func (c *Client) GetContainers(stackUid string, serverUid *string, serviceName *
 			ServiceName: *serviceName,
 		}
 	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/containers.json", params)
-	if err != nil {
-		return nil, err
-	}
+
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
+
+	var p Pagination
+	var result []Container
 	var containerRes []Container
-	return containerRes, c.DoReq(req, &containerRes)
+
+	for {
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/containers.json", params, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		containerRes = nil
+		err = c.DoReq(req, &containerRes, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, containerRes...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
+	}
+
+	return result, nil
+
 }
 
 func (c *Client) GetContainer(stackUid string, containerUid string) (*Container, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/containers/"+containerUid+".json", nil)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/containers/"+containerUid+".json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 	var containerRes *Container
-	return containerRes, c.DoReq(req, &containerRes)
+	return containerRes, c.DoReq(req, &containerRes, nil)
 }
 
 func (c *Client) StopContainer(stackUid string, containerUid string) (*AsyncResult, error) {
-	req, err := c.NewRequest("DELETE", "/stacks/"+stackUid+"/containers/"+containerUid+".json", nil)
+	req, err := c.NewRequest("DELETE", "/stacks/"+stackUid+"/containers/"+containerUid+".json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
 func (c *Client) InvokeStackContainerAction(stackUid string, containerUid string, action string) (*AsyncResult, error) {
@@ -88,10 +116,10 @@ func (c *Client) InvokeStackContainerAction(stackUid string, containerUid string
 		Command:      action,
 		ContainerUid: containerUid,
 	}
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }

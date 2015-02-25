@@ -2,6 +2,7 @@ package cloud66
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -43,12 +44,35 @@ func (s Server) Health() string {
 }
 
 func (c *Client) Servers(stackUid string) ([]Server, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers.json", nil)
-	if err != nil {
-		return nil, err
-	}
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
+
+	var p Pagination
+	var result []Server
 	var serversRes []Server
-	return serversRes, c.DoReq(req, &serversRes)
+
+	for {
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers.json", nil, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		serversRes = nil
+		err = c.DoReq(req, &serversRes, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, serversRes...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
+	}
+
+	return result, nil
 }
 
 func (c *Client) ServerKeyInformation(stackUid string, serverUid string) (string, error) {
@@ -68,23 +92,45 @@ func (c *Client) GetServer(stackUid string, serverUid string, includeSshKey int)
 	}{
 		Value: includeSshKey,
 	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers/"+serverUid+".json", params)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers/"+serverUid+".json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var serverRes *Server
-	return serverRes, c.DoReq(req, &serverRes)
+	return serverRes, c.DoReq(req, &serverRes, nil)
 }
 
 func (c *Client) ServerSettings(stackUid string, serverUid string) ([]StackSetting, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers/"+serverUid+"/settings.json", nil)
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
 
-	if err != nil {
-		return nil, err
+	var p Pagination
+	var result []StackSetting
+	var settingsRes []StackSetting
+
+	for {
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers/"+serverUid+"/settings.json", nil, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		settingsRes = nil
+		err = c.DoReq(req, &settingsRes, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, settingsRes...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
 	}
 
-	var settingsRes []StackSetting
-	return settingsRes, c.DoReq(req, &settingsRes)
+	return result, nil
+
 }
 
 func (c *Client) ServerSet(stackUid string, serverUid string, key string, value string) (*AsyncResult, error) {
@@ -94,12 +140,12 @@ func (c *Client) ServerSet(stackUid string, serverUid string, key string, value 
 	}{
 		Value: value,
 	}
-	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/servers/"+serverUid+"/settings/"+key+".json", params)
+	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/servers/"+serverUid+"/settings/"+key+".json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
 func (s *Server) HasRole(searchRole string) bool {

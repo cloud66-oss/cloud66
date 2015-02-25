@@ -51,8 +51,15 @@ type Client struct {
 }
 
 type Response struct {
-	Response json.RawMessage
-	Count    int
+	Response   json.RawMessage
+	Count      int
+	Pagination json.RawMessage
+}
+
+type Pagination struct {
+	Previous int
+	Next     int
+	Current  int
 }
 
 type filterFunction func(item interface{}) bool
@@ -68,27 +75,27 @@ func init() {
 	tokenURL = baseAPIURL + "/oauth/token"
 }
 
-func (c *Client) Get(v interface{}, path string) error {
-	return c.APIReq(v, "GET", path, nil)
+func (c *Client) Get(v interface{}, path string, query_strings map[string]string, p *Pagination) error {
+	return c.APIReq(v, "GET", path, nil, query_strings, p)
 }
 
 func (c *Client) Patch(v interface{}, path string, body interface{}) error {
-	return c.APIReq(v, "PATCH", path, body)
+	return c.APIReq(v, "PATCH", path, body, nil, nil)
 }
 
 func (c *Client) Post(v interface{}, path string, body interface{}) error {
-	return c.APIReq(v, "POST", path, body)
+	return c.APIReq(v, "POST", path, body, nil, nil)
 }
 
 func (c *Client) Put(v interface{}, path string, body interface{}) error {
-	return c.APIReq(v, "PUT", path, body)
+	return c.APIReq(v, "PUT", path, body, nil, nil)
 }
 
 func (c *Client) Delete(path string) error {
-	return c.APIReq(nil, "DELETE", path, nil)
+	return c.APIReq(nil, "DELETE", path, nil, nil, nil)
 }
 
-func (c *Client) NewRequest(method, path string, body interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(method, path string, body interface{}, query_strings map[string]string) (*http.Request, error) {
 	var ctype string
 	var rbody io.Reader
 
@@ -121,10 +128,29 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	if apiURL == "" {
 		apiURL = defaultAPIURL
 	}
-	req, err := http.NewRequest(method, apiURL+path, rbody)
+
+	var qs string
+	if (query_strings != nil) && (len(query_strings) > 0) {
+		for key, value := range query_strings {
+			if qs == "" {
+				qs = "?"
+			} else {
+				qs = qs + "&"
+			}
+			qs = qs + key + "=" + value
+		}
+	}
+
+	last_url := strings.TrimRight(apiURL+path, "/")
+	if qs != "" {
+		last_url = last_url + qs
+	}
+
+	req, err := http.NewRequest(method, last_url, rbody)
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Request-Id", uuid.New())
 	if os.Getenv("CXTOKEN") != "" {
@@ -144,15 +170,15 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	return req, nil
 }
 
-func (c *Client) APIReq(v interface{}, meth, path string, body interface{}) error {
-	req, err := c.NewRequest(meth, path, body)
+func (c *Client) APIReq(v interface{}, meth, path string, body interface{}, query_strings map[string]string, p *Pagination) error {
+	req, err := c.NewRequest(meth, path, body, query_strings)
 	if err != nil {
 		return err
 	}
-	return c.DoReq(req, v)
+	return c.DoReq(req, v, p)
 }
 
-func (c *Client) DoReq(req *http.Request, v interface{}) error {
+func (c *Client) DoReq(req *http.Request, v interface{}, p *Pagination) error {
 
 	if c.Debug {
 		dump, err := httputil.DumpRequestOut(req, true)
@@ -162,6 +188,13 @@ func (c *Client) DoReq(req *http.Request, v interface{}) error {
 			os.Stderr.Write(dump)
 			os.Stderr.Write([]byte{'\n', '\n'})
 		}
+	}
+
+	var check_pagination bool
+	if (req.Method == "GET") && (p != nil) {
+		check_pagination = true
+	} else {
+		check_pagination = false
 	}
 
 	httpClient := c.HTTP
@@ -193,6 +226,7 @@ func (c *Client) DoReq(req *http.Request, v interface{}) error {
 	if err != nil {
 		return err
 	}
+
 	buffer := bytes.NewBuffer(r.Response)
 
 	switch t := v.(type) {
@@ -202,6 +236,12 @@ func (c *Client) DoReq(req *http.Request, v interface{}) error {
 	default:
 		err = json.NewDecoder(buffer).Decode(v)
 	}
+
+	if (err == nil) && check_pagination {
+		pagination := bytes.NewBuffer(r.Pagination)
+		err = json.NewDecoder(pagination).Decode(p)
+	}
+
 	return err
 }
 

@@ -2,6 +2,7 @@ package cloud66
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -67,29 +68,68 @@ func (s Stack) Health() string {
 }
 
 func (c *Client) StackList() ([]Stack, error) {
-	req, err := c.NewRequest("GET", "/stacks.json", nil)
-	if err != nil {
-		return nil, err
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
+
+	var p Pagination
+	var result []Stack
+	var stacksRes []Stack
+
+	for {
+		req, err := c.NewRequest("GET", "/stacks.json", nil, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		stacksRes = nil
+		err = c.DoReq(req, &stacksRes, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, stacksRes...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
 	}
 
-	var stacksRes []Stack
-	return stacksRes, c.DoReq(req, &stacksRes)
+	return result, nil
 }
 
 func (c *Client) StackListWithFilter(filter filterFunction) ([]Stack, error) {
-	req, err := c.NewRequest("GET", "/stacks.json", nil)
-	if err != nil {
-		return nil, err
-	}
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
 
+	var p Pagination
+	var mid_result []Stack
 	var stacksRes []Stack
-	err = c.DoReq(req, &stacksRes)
-	if err != nil {
-		return nil, err
+
+	for {
+		req, err := c.NewRequest("GET", "/stacks.json", nil, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		stacksRes = nil
+		err = c.DoReq(req, &stacksRes, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		mid_result = append(mid_result, stacksRes...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
 	}
 
 	var result []Stack
-	for _, item := range stacksRes {
+	for _, item := range mid_result {
 		if filter(item) {
 			result = append(result, item)
 		}
@@ -104,13 +144,13 @@ func (c *Client) StackInfo(stackName string) (*Stack, error) {
 	}
 
 	uid := stack.Uid
-	req, err := c.NewRequest("GET", "/stacks/"+uid+".json", nil)
+	req, err := c.NewRequest("GET", "/stacks/"+uid+".json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	var stacksRes *Stack
-	return stacksRes, c.DoReq(req, &stacksRes)
+	return stacksRes, c.DoReq(req, &stacksRes, nil)
 }
 
 func (c *Client) StackInfoWithEnvironment(stackName, environment string) (*Stack, error) {
@@ -120,33 +160,78 @@ func (c *Client) StackInfoWithEnvironment(stackName, environment string) (*Stack
 	}
 
 	uid := stack.Uid
-	req, err := c.NewRequest("GET", "/stacks/"+uid+".json", nil)
+	req, err := c.NewRequest("GET", "/stacks/"+uid+".json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	var stacksRes *Stack
-	return stacksRes, c.DoReq(req, &stacksRes)
+	return stacksRes, c.DoReq(req, &stacksRes, nil)
 }
 
 func (c *Client) StackSettings(uid string) ([]StackSetting, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+uid+"/settings.json", nil)
-	if err != nil {
-		return nil, err
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
+
+	var p Pagination
+	var result []StackSetting
+	var settingsRes []StackSetting
+
+	for {
+		req, err := c.NewRequest("GET", "/stacks/"+uid+"/settings.json", nil, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		settingsRes = nil
+		err = c.DoReq(req, &settingsRes, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, settingsRes...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
 	}
 
-	var settingsRes []StackSetting
-	return settingsRes, c.DoReq(req, &settingsRes)
+	return result, nil
 }
 
 func (c *Client) StackEnvVars(uid string) ([]StackEnvVar, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+uid+"/environments.json", nil)
-	if err != nil {
-		return nil, err
+
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
+
+	var p Pagination
+	var result []StackEnvVar
+	var envVarsRes []StackEnvVar
+
+	for {
+		req, err := c.NewRequest("GET", "/stacks/"+uid+"/environments.json", nil, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		envVarsRes = nil
+		err = c.DoReq(req, &envVarsRes, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, envVarsRes...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
 	}
 
-	var envVarsRes []StackEnvVar
-	return envVarsRes, c.DoReq(req, &envVarsRes)
+	return result, nil
 }
 
 func (c *Client) StackEnvVarNew(stackUid string, key string, value string) (*AsyncResult, error) {
@@ -157,12 +242,12 @@ func (c *Client) StackEnvVarNew(stackUid string, key string, value string) (*Asy
 		Key:   key,
 		Value: value,
 	}
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/environments.json", params)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/environments.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncResult *AsyncResult
-	return asyncResult, c.DoReq(req, &asyncResult)
+	return asyncResult, c.DoReq(req, &asyncResult, nil)
 }
 
 func (c *Client) StackEnvVarSet(stackUid string, key string, value string) (*AsyncResult, error) {
@@ -171,12 +256,12 @@ func (c *Client) StackEnvVarSet(stackUid string, key string, value string) (*Asy
 	}{
 		Value: value,
 	}
-	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/environments/"+key+".json", params)
+	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/environments/"+key+".json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
 func (c *Client) FindStackByName(stackName, environment string) (*Stack, error) {
@@ -192,13 +277,35 @@ func (c *Client) FindStackByName(stackName, environment string) (*Stack, error) 
 }
 
 func (c *Client) ManagedBackups(uid string) ([]ManagedBackup, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+uid+"/backups.json", nil)
-	if err != nil {
-		return nil, err
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
+
+	var p Pagination
+	var result []ManagedBackup
+	var managedBackupsRes []ManagedBackup
+
+	for {
+		req, err := c.NewRequest("GET", "/stacks/"+uid+"/backups.json", nil, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		managedBackupsRes = nil
+		err = c.DoReq(req, &managedBackupsRes, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, managedBackupsRes...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
 	}
 
-	var managedBackupsRes []ManagedBackup
-	return managedBackupsRes, c.DoReq(req, &managedBackupsRes)
+	return result, nil
 }
 
 func (c *Client) Set(uid string, key string, value string) (*AsyncResult, error) {
@@ -208,12 +315,12 @@ func (c *Client) Set(uid string, key string, value string) (*AsyncResult, error)
 	}{
 		Value: value,
 	}
-	req, err := c.NewRequest("PUT", "/stacks/"+uid+"/settings/"+key+".json", params)
+	req, err := c.NewRequest("PUT", "/stacks/"+uid+"/settings/"+key+".json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
 func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int, serverUid *string) (*AsyncResult, error) {
@@ -260,12 +367,12 @@ func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int
 		Port:       thePort,
 		ServerUid:  theServerUid,
 	}
-	req, err := c.NewRequest("POST", "/stacks/"+uid+"/firewalls.json", params)
+	req, err := c.NewRequest("POST", "/stacks/"+uid+"/firewalls.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
 func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, port *int, serverUid *string) (*GenericResponse, error) {
@@ -288,12 +395,12 @@ func (c *Client) RedeployStack(stackUid string, gitRef string, servicesFilter st
 		GitRef:       gitRef,
 		ServiceNames: servicesFilter,
 	}
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/deployments.json", params)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/deployments.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var stacksRes *GenericResponse
-	return stacksRes, c.DoReq(req, &stacksRes)
+	return stacksRes, c.DoReq(req, &stacksRes, nil)
 }
 
 func (c *Client) InvokeStackAction(stackUid string, action string) (*AsyncResult, error) {
@@ -302,12 +409,12 @@ func (c *Client) InvokeStackAction(stackUid string, action string) (*AsyncResult
 	}{
 		Command: action,
 	}
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
 func (c *Client) InvokeDbStackAction(stackUid string, serverUid string, dbType *string, action string) (*AsyncResult, error) {
@@ -331,10 +438,10 @@ func (c *Client) InvokeDbStackAction(stackUid string, serverUid string, dbType *
 			DbType:    *dbType,
 		}
 	}
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
