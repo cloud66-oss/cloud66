@@ -1,8 +1,9 @@
 package cloud66
 
 import (
-	"time"
 	"fmt"
+	"strconv"
+	"time"
 )
 
 type UnmanagedServer struct {
@@ -22,26 +23,49 @@ type Account struct {
 }
 
 func (c *Client) AccountInfos() ([]Account, error) {
-	req, err := c.NewRequest("GET", "/accounts.json", nil)
-	if err != nil {
-		return nil, err
-	}
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
+
+	var p Pagination
+	var result []Account
 	var accountRes []Account
-	return accountRes, c.DoReq(req, &accountRes)
+
+	for {
+		req, err := c.NewRequest("GET", "/accounts.json", nil, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		accountRes = nil
+		err = c.DoReq(req, &accountRes, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, accountRes...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
+	}
+
+	return result, nil
 }
 
 func (c *Client) AccountInfo(accountId int, getUnmanaged bool) (*Account, error) {
 	params := struct {
-		Value  bool `json:"include_servers"`
+		Value bool `json:"include_servers"`
 	}{
 		Value: getUnmanaged,
 	}
 
-	req, err := c.NewRequest("GET", fmt.Sprintf("/accounts/%d.json", accountId), params)
+	req, err := c.NewRequest("GET", fmt.Sprintf("/accounts/%d.json", accountId), params, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	var accountRes *Account
-	return accountRes, c.DoReq(req, &accountRes)
+	return accountRes, c.DoReq(req, &accountRes, nil)
 }

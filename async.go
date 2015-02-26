@@ -63,10 +63,10 @@ func (c *Client) WaitStackAsyncAction(asyncId int, stackUid string, checkFrequen
 }
 
 func (c *Client) getStackAsyncAction(asyncId int, stackUid string) (*AsyncResult, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/actions/"+strconv.Itoa(asyncId)+".json", nil)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/actions/"+strconv.Itoa(asyncId)+".json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes)
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
