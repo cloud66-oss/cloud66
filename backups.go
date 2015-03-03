@@ -111,3 +111,45 @@ func (c *Client) GetBackupSegment(stackUid string, backupId int, extension strin
 	return backupSegmentRes, err
 
 }
+
+func (c *Client) NewBackup(stackUid string, dbtypes *string, frequency *string, keep *int, gzip *bool, exclude_tables *string, run_on_replica *bool) error {
+
+	query_strings := make(map[string]string)
+
+	if dbtypes != nil {
+		query_strings["db_type"] = *dbtypes
+	}
+
+	if frequency != nil {
+		query_strings["frequency"] = *frequency
+	}
+
+	if keep != nil {
+		query_strings["keep_count"] = strconv.Itoa(*keep)
+	}
+
+	if gzip != nil {
+		query_strings["gzip"] = strconv.FormatBool(*gzip)
+	}
+
+	if exclude_tables != nil {
+		query_strings["exclude_tables"] = *exclude_tables
+	}
+
+	if run_on_replica != nil {
+		query_strings["run_on_replica"] = strconv.FormatBool(*run_on_replica)
+	}
+
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/backups.json", nil, query_strings)
+	if err != nil {
+		return err
+	}
+
+	err = c.DoReq(req, nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
