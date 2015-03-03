@@ -2,6 +2,7 @@ package cloud66
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -137,20 +138,70 @@ func (c *Client) StackListWithFilter(filter filterFunction) ([]Stack, error) {
 	return result, nil
 }
 
+func (c *Client) CreateStack(name, environment, serviceYaml, manifestYaml string, targetOptions map[string]string) (*AsyncResult, error) {
+	params := struct {
+		Name         string `json:"name"`
+		Environment  string `json:"environment"`
+		ServiceYaml  string `json:"service_yaml"`
+		ManifestYaml string `json:"manifest_yaml"`
+		Cloud        string `json:"cloud"`
+		Region       string `json:"region"`
+		Size         string `json:"size"`
+		BuildType    string `json:"build_type"`
+	}{
+		Name:         name,
+		Environment:  environment,
+		ServiceYaml:  serviceYaml,
+		ManifestYaml: manifestYaml,
+		Cloud:        targetOptions["cloud"],
+		Region:       targetOptions["region"],
+		Size:         targetOptions["size"],
+		BuildType:    targetOptions["build_type"],
+	}
+	req, err := c.NewRequest("POST", "/stacks", params, nil)
+	if err != nil {
+		return nil, err
+	}
+	var asyncResult *AsyncResult
+	return asyncResult, c.DoReq(req, &asyncResult, nil)
+}
+
+func (c *Client) WaitStackBuild(stackUid string) (*Stack, error) {
+	timeout := 3 * time.Hour
+	checkFrequency := 1 * time.Minute
+	showWorkingIndicator := true
+	timeoutTime := time.Now().Add(timeout)
+	var stack *Stack
+	for {
+		// fetch the current status of the async action
+		stack, err := c.FindStackByUid(stackUid)
+		if err != nil {
+			return nil, err
+		}
+		// check for a result!
+		if (stack.StatusCode == 1 || stack.StatusCode == 2 || stack.StatusCode == 7) &&
+			(stack.HealthCode == 2 || stack.HealthCode == 3 || stack.HealthCode == 4) {
+			break
+		}
+		// check for client-side time-out
+		if time.Now().After(timeoutTime) {
+			return nil, errors.New("timed-out after " + strconv.FormatInt(int64(timeout)/int64(time.Second), 10) + " second(s)")
+		}
+		// sleep for checkFrequency secs between lookup requests
+		time.Sleep(checkFrequency)
+		if showWorkingIndicator {
+			fmt.Printf(".")
+		}
+	}
+	return stack, nil
+}
+
 func (c *Client) StackInfo(stackName string) (*Stack, error) {
 	stack, err := c.FindStackByName(stackName, "")
 	if err != nil {
 		return nil, err
 	}
-
-	uid := stack.Uid
-	req, err := c.NewRequest("GET", "/stacks/"+uid+".json", nil, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var stacksRes *Stack
-	return stacksRes, c.DoReq(req, &stacksRes, nil)
+	return c.FindStackByUid(stack.Uid)
 }
 
 func (c *Client) StackInfoWithEnvironment(stackName, environment string) (*Stack, error) {
@@ -158,13 +209,14 @@ func (c *Client) StackInfoWithEnvironment(stackName, environment string) (*Stack
 	if err != nil {
 		return nil, err
 	}
+	return c.FindStackByUid(stack.Uid)
+}
 
-	uid := stack.Uid
-	req, err := c.NewRequest("GET", "/stacks/"+uid+".json", nil, nil)
+func (c *Client) FindStackByUid(stackUid string) (*Stack, error) {
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+".json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
-
 	var stacksRes *Stack
 	return stacksRes, c.DoReq(req, &stacksRes, nil)
 }
