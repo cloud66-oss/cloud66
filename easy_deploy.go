@@ -2,6 +2,7 @@ package cloud66
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type EasyDeployMaintainer struct {
@@ -23,20 +24,44 @@ type EasyDeploy struct {
 }
 
 func (c *Client) EasyDeployList() ([]string, error) {
-	req, err := c.NewRequest("GET", "/easy_deploys.json", nil)
-	if err != nil {
-		return nil, err
-	}
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
+
+	var p Pagination
+	var result []string
 	var easyDeploy []string
-	return easyDeploy, c.DoReq(req, &easyDeploy)
+
+	for {
+		req, err := c.NewRequest("GET", "/easy_deploys.json", nil, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		easyDeploy = nil
+		err = c.DoReq(req, &easyDeploy, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, easyDeploy...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
+	}
+
+	return result, nil
+
 }
 
 func (c *Client) EasyDeployInfo(name string) (*EasyDeploy, error) {
-	req, err := c.NewRequest("GET", fmt.Sprintf("/easy_deploys/%s.json", name), nil)
+	req, err := c.NewRequest("GET", fmt.Sprintf("/easy_deploys/%s.json", name), nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	var easyDeploy *EasyDeploy
-	return easyDeploy, c.DoReq(req, &easyDeploy)
+	return easyDeploy, c.DoReq(req, &easyDeploy, nil)
 }

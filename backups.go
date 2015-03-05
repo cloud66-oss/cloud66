@@ -59,12 +59,36 @@ type BackupSegment struct {
 }
 
 func (c *Client) GetBackupSegmentIndeces(stackUid string, backupId int) ([]BackupSegmentIndex, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/backups/"+strconv.Itoa(backupId)+"/files.json", nil)
-	if err != nil {
-		return nil, err
-	}
+	query_strings := make(map[string]string)
+	query_strings["page"] = "1"
+
+	var p Pagination
+	var result []BackupSegmentIndex
 	var backupSegIndex []BackupSegmentIndex
-	return backupSegIndex, c.DoReq(req, &backupSegIndex)
+
+	for {
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/backups/"+strconv.Itoa(backupId)+"/files.json", nil, query_strings)
+		if err != nil {
+			return nil, err
+		}
+
+		backupSegIndex = nil
+		err = c.DoReq(req, &backupSegIndex, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, backupSegIndex...)
+		if p.Current < p.Next {
+			query_strings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+
+	}
+
+	return result, nil
+
 }
 
 func (c *Client) GetBackupSegment(stackUid string, backupId int, extension string) (*BackupSegment, error) {
@@ -72,12 +96,12 @@ func (c *Client) GetBackupSegment(stackUid string, backupId int, extension strin
 	if extension != "" {
 		ext = "/" + extension
 	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/backups/"+strconv.Itoa(backupId)+"/files/"+ext+".json", nil)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/backups/"+strconv.Itoa(backupId)+"/files/"+ext+".json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 	var backupSegmentRes *BackupSegment
-	err = c.DoReq(req, &backupSegmentRes)
+	err = c.DoReq(req, &backupSegmentRes, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -85,5 +109,37 @@ func (c *Client) GetBackupSegment(stackUid string, backupId int, extension strin
 	// fix percentage deserialize go bug
 	backupSegmentRes.Url = strings.Replace(backupSegmentRes.Url, "%25", "%", -1)
 	return backupSegmentRes, err
+
+}
+
+func (c *Client) NewBackup(stackUid string, dbtypes *string, frequency *string, keep *int, gzip *bool, exclude_tables *string, run_on_replica *bool) error {
+
+	params := struct {
+		DbType        *string `json:"db_type"`
+		Frequency     *string `json:"frequency"`
+		KeepCount     *int    `json:"keep_count"`
+		Gzip          *bool   `json:"gzip"`
+		ExcludeTables *string `json:"excluded_tables"`
+		RunOnReplica  *bool   `json:"run_on_replica_server"`
+	}{
+		DbType:        dbtypes,
+		Frequency:     frequency,
+		KeepCount:     keep,
+		Gzip:          gzip,
+		ExcludeTables: exclude_tables,
+		RunOnReplica:  run_on_replica,
+	}
+
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/backups.json", params, nil)
+	if err != nil {
+		return err
+	}
+
+	err = c.DoReq(req, nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
