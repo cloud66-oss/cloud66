@@ -166,10 +166,9 @@ func (c *Client) CreateStack(name, environment, serviceYaml, manifestYaml string
 	return asyncResult, c.DoReq(req, &asyncResult, nil)
 }
 
-func (c *Client) WaitStackBuild(stackUid string) (*Stack, error) {
+func (c *Client) WaitStackBuild(stackUid string, showWorkingIndicator bool) (*Stack, error) {
 	timeout := 3 * time.Hour
 	checkFrequency := 1 * time.Minute
-	showWorkingIndicator := true
 	timeoutTime := time.Now().Add(timeout)
 	var stack *Stack
 	for {
