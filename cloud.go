@@ -17,6 +17,15 @@ type CloudRegion struct {
 	Name string `json:"name"`
 }
 
+func (c *Client) GetCloudsInfo() ([]Cloud, error) {
+	req, err := c.NewRequest("GET", "/clouds.json", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	var cloudRes []Cloud
+	return cloudRes, c.DoReq(req, &cloudRes, nil)
+}
+
 func (c *Client) GetCloudInfo(cloudName string) (*Cloud, error) {
 	req, err := c.NewRequest("GET", "/clouds/"+cloudName+".json", nil, nil)
 	if err != nil {
