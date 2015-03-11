@@ -108,6 +108,27 @@ func (c *Client) StopContainer(stackUid string, containerUid string) (*AsyncResu
 	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
+func (c *Client) StartContainer(stackUid string, serverUid string, serviceName string, command string) (*Container, error) {
+	params := struct {
+		Command      string `json:"command"`
+		ServiceName  string `json:"service_name"`
+		ServerUid    string `json:"server_uid"`
+		CommandToRun string `json:"command_to_run"`
+	}{
+		Command:      "start_container",
+		ServiceName:  serviceName,
+		ServerUid:    serverUid,
+		CommandToRun: command,
+	}
+
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/services/"+serviceName+"/actions.json", params, nil)
+	if err != nil {
+		return nil, err
+	}
+	var containerRes *Container
+	return containerRes, c.DoReq(req, &containerRes, nil)
+}
+
 func (c *Client) InvokeStackContainerAction(stackUid string, containerUid string, action string) (*AsyncResult, error) {
 	params := struct {
 		Command      string `json:"command"`
