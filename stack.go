@@ -2,7 +2,6 @@ package cloud66
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -164,35 +163,6 @@ func (c *Client) CreateStack(name, environment, serviceYaml, manifestYaml string
 	}
 	var asyncResult *AsyncResult
 	return asyncResult, c.DoReq(req, &asyncResult, nil)
-}
-
-func (c *Client) WaitStackBuild(stackUid string, showWorkingIndicator bool) (*Stack, error) {
-	timeout := 3 * time.Hour
-	checkFrequency := 1 * time.Minute
-	timeoutTime := time.Now().Add(timeout)
-	var stack *Stack
-	for {
-		// fetch the current status of the async action
-		stack, err := c.FindStackByUid(stackUid)
-		if err != nil {
-			return nil, err
-		}
-		// check for a result!
-		if (stack.StatusCode == 1 || stack.StatusCode == 2 || stack.StatusCode == 7) &&
-			(stack.HealthCode == 2 || stack.HealthCode == 3 || stack.HealthCode == 4) {
-			break
-		}
-		// check for client-side time-out
-		if time.Now().After(timeoutTime) {
-			return nil, errors.New("timed-out after " + strconv.FormatInt(int64(timeout)/int64(time.Second), 10) + " second(s)")
-		}
-		// sleep for checkFrequency secs between lookup requests
-		time.Sleep(checkFrequency)
-		if showWorkingIndicator {
-			fmt.Printf(".")
-		}
-	}
-	return stack, nil
 }
 
 func (c *Client) StackInfo(stackName string) (*Stack, error) {
