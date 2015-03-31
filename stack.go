@@ -59,6 +59,12 @@ type StackEnvVar struct {
 	Readonly bool        `json:"readonly"`
 }
 
+type RedeployResponse struct {
+	Status  bool   `json:"ok"`
+	Message string `json:"message"`
+	Queued  bool   `json:"queued"`
+}
+
 func (s Stack) Status() string {
 	return stackStatus[s.StatusCode]
 }
@@ -408,20 +414,20 @@ func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, 
 	return genericRes, err
 }
 
-func (c *Client) RedeployStack(stackUid string, gitRef string, servicesFilter string) (*GenericResponse, error) {
+func (c *Client) RedeployStack(stackUid string, gitRef string, services []string) (*RedeployResponse, error) {
 	params := struct {
-		GitRef       string `json:"git_ref"`
-		ServiceNames string `json:"services_filter"`
+		GitRef   string   `json:"git_ref"`
+		Services []string `json:"services"`
 	}{
-		GitRef:       gitRef,
-		ServiceNames: servicesFilter,
+		GitRef:   gitRef,
+		Services: services,
 	}
 	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/deployments.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
-	var stacksRes *GenericResponse
-	return stacksRes, c.DoReq(req, &stacksRes, nil)
+	var redeployRes *RedeployResponse
+	return redeployRes, c.DoReq(req, &redeployRes, nil)
 }
 
 func (c *Client) InvokeStackAction(stackUid string, action string) (*AsyncResult, error) {
