@@ -2,7 +2,6 @@ package cloud66
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -58,6 +57,12 @@ type StackEnvVar struct {
 	Key      string      `json:"key"`
 	Value    interface{} `json:"value"`
 	Readonly bool        `json:"readonly"`
+}
+
+type RedeployResponse struct {
+	Status  bool   `json:"ok"`
+	Message string `json:"message"`
+	Queued  bool   `json:"queued"`
 }
 
 func (s Stack) Status() string {
@@ -164,35 +169,6 @@ func (c *Client) CreateStack(name, environment, serviceYaml, manifestYaml string
 	}
 	var asyncResult *AsyncResult
 	return asyncResult, c.DoReq(req, &asyncResult, nil)
-}
-
-func (c *Client) WaitStackBuild(stackUid string, showWorkingIndicator bool) (*Stack, error) {
-	timeout := 3 * time.Hour
-	checkFrequency := 1 * time.Minute
-	timeoutTime := time.Now().Add(timeout)
-	var stack *Stack
-	for {
-		// fetch the current status of the async action
-		stack, err := c.FindStackByUid(stackUid)
-		if err != nil {
-			return nil, err
-		}
-		// check for a result!
-		if (stack.StatusCode == 1 || stack.StatusCode == 2 || stack.StatusCode == 7) &&
-			(stack.HealthCode == 2 || stack.HealthCode == 3 || stack.HealthCode == 4) {
-			break
-		}
-		// check for client-side time-out
-		if time.Now().After(timeoutTime) {
-			return nil, errors.New("timed-out after " + strconv.FormatInt(int64(timeout)/int64(time.Second), 10) + " second(s)")
-		}
-		// sleep for checkFrequency secs between lookup requests
-		time.Sleep(checkFrequency)
-		if showWorkingIndicator {
-			fmt.Printf(".")
-		}
-	}
-	return stack, nil
 }
 
 func (c *Client) StackInfo(stackName string) (*Stack, error) {
@@ -438,20 +414,20 @@ func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, 
 	return genericRes, err
 }
 
-func (c *Client) RedeployStack(stackUid string, gitRef string, servicesFilter string) (*GenericResponse, error) {
+func (c *Client) RedeployStack(stackUid string, gitRef string, services []string) (*RedeployResponse, error) {
 	params := struct {
-		GitRef       string `json:"git_ref"`
-		ServiceNames string `json:"services_filter"`
+		GitRef   string   `json:"git_ref"`
+		Services []string `json:"services"`
 	}{
-		GitRef:       gitRef,
-		ServiceNames: servicesFilter,
+		GitRef:   gitRef,
+		Services: services,
 	}
 	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/deployments.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
-	var stacksRes *GenericResponse
-	return stacksRes, c.DoReq(req, &stacksRes, nil)
+	var redeployRes *RedeployResponse
+	return redeployRes, c.DoReq(req, &redeployRes, nil)
 }
 
 func (c *Client) InvokeStackAction(stackUid string, action string) (*AsyncResult, error) {

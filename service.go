@@ -115,6 +115,22 @@ func (c *Client) ScaleService(stackUid string, serviceName string, serverCount m
 	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
+func (c *Client) ScaleServiceByGroup(stackUid string, serviceName string, groupCount map[string]int) (*AsyncResult, error) {
+	params := struct {
+		ServiceName      string         `json:"service_name"`
+		ServerGroupCount map[string]int `json:"server_group_count"`
+	}{
+		ServiceName:      serviceName,
+		ServerGroupCount: groupCount,
+	}
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/services.json", params, nil)
+	if err != nil {
+		return nil, err
+	}
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
+}
+
 func (s *Service) ServerContainerCountMap() map[string]int {
 	var serverMap = make(map[string]int)
 	for _, container := range s.Containers {
