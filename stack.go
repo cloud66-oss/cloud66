@@ -53,10 +53,19 @@ type StackSetting struct {
 	Readonly bool        `json:"readonly"`
 }
 
+type StackEnvVarHistory struct {
+	Value     interface{} `json:"value"`
+	CreatedAt time.Time   `json:"created_at_iso"`
+	UpdatedAt time.Time   `json:"updated_at_iso"`
+}
+
 type StackEnvVar struct {
-	Key      string      `json:"key"`
-	Value    interface{} `json:"value"`
-	Readonly bool        `json:"readonly"`
+	Key       string               `json:"key"`
+	Value     interface{}          `json:"value"`
+	Readonly  bool                 `json:"readonly"`
+	CreatedAt time.Time            `json:"created_at_iso"`
+	UpdatedAt time.Time            `json:"updated_at_iso"`
+	History   []StackEnvVarHistory `json:"history"`
 }
 
 type RedeployResponse struct {
