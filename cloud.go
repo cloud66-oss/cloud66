@@ -3,6 +3,7 @@ package cloud66
 type Cloud struct {
 	Id          string            `json:"name"`
 	Name        string            `json:"display_name"`
+	KeyName     string            `json:"key_name"`
 	Regions     []CloudRegion     `json:"regions"`
 	ServerSizes []CloudServerSize `json:"server_sizes"`
 }
