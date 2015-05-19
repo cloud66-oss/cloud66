@@ -159,6 +159,7 @@ func (c *Client) CreateStack(name, environment, serviceYaml, manifestYaml string
 		ServiceYaml  string `json:"service_yaml"`
 		ManifestYaml string `json:"manifest_yaml"`
 		Cloud        string `json:"cloud"`
+		KeyName      string `json:"key_name"`
 		Region       string `json:"region"`
 		Size         string `json:"size"`
 		BuildType    string `json:"build_type"`
@@ -168,6 +169,7 @@ func (c *Client) CreateStack(name, environment, serviceYaml, manifestYaml string
 		ServiceYaml:  serviceYaml,
 		ManifestYaml: manifestYaml,
 		Cloud:        targetOptions["cloud"],
+		KeyName:      targetOptions["key_name"],
 		Region:       targetOptions["region"],
 		Size:         targetOptions["size"],
 		BuildType:    targetOptions["build_type"],
