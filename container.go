@@ -19,6 +19,7 @@ const (
 
 type Container struct {
 	Uid             string    `json:"uid"`
+	Name            string    `json:"name"`
 	ServerUid       string    `json:"server_uid"`
 	ServerName      string    `json:"server_name"`
 	ServiceName     string    `json:"service_name"`
