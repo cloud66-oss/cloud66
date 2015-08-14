@@ -148,6 +148,15 @@ func (c *Client) ServerSet(stackUid string, serverUid string, key string, value 
 	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
+func (c *Client) ServerReboot(stackUid string, serverUid string) (*AsyncResult, error) {
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/servers/"+serverUid+"/reboot.json", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
+}
+
 func (s *Server) HasRole(searchRole string) bool {
 	for _, role := range s.Roles {
 		if role == searchRole {
