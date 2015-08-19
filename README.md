@@ -26,7 +26,7 @@ Or you can use [Personal Access Token](https://app.cloud66.com/oauth/authorized_
 		tokenFile    string = "YOUR_TOKEN_FILENAME"
 		tokenDir     string = "YOUR_TOKEN_DIRECTORY"
 	)
-	client = cloud66.GetClient(tokenDir, tokenFile, "")
+	client := cloud66.GetClient(tokenDir, tokenFile, "")
 
 ### Get Stacks List
 
