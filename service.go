@@ -3,9 +3,17 @@ package cloud66
 import "strconv"
 
 type Service struct {
-	Name        string      `json:"name"`
-	Containers  []Container `json:"containers"`
-	WrapCommand string      `json:"wrap_command"`
+	Name          string      `json:"name"`
+	Containers    []Container `json:"containers"`
+	SourceType    string      `json:"source_type"`
+	GitRef        string      `json:"git_ref"`
+	ImageName     string      `json:"image_name"`
+	ImageUid      string      `json:"image_uid"`
+	ImageHash     string      `json:"image_hash"`
+	Command       string      `json:"command"`
+	BuildCommand  string      `json:"build_command"`
+	DeployCommand string      `json:"deploy_command"`
+	WrapCommand   string      `json:"wrap_command"`
 }
 
 func (c *Client) GetServices(stackUid string, serverUid *string) ([]Service, error) {
