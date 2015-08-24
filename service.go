@@ -9,7 +9,7 @@ type Service struct {
 	GitRef        string      `json:"git_ref"`
 	ImageName     string      `json:"image_name"`
 	ImageUid      string      `json:"image_uid"`
-	ImageHash     string      `json:"image_hash"`
+	ImageTag      string      `json:"image_tag"`
 	Command       string      `json:"command"`
 	BuildCommand  string      `json:"build_command"`
 	DeployCommand string      `json:"deploy_command"`
