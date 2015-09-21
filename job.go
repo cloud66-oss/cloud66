@@ -11,10 +11,6 @@ var JobStatus = map[int]string{
 	3: "Failed",  // ST_FAILED
 }
 
-type Job interface {
-	GetBasicJob() BasicJob
-}
-
 type basicJob struct {
 	Id        int             `json:"id"`
 	Uid       string          `json:"uid"`
@@ -23,7 +19,7 @@ type basicJob struct {
 	Cron      string          `json:"cron"`
 	Status    int             `json:"status"`
 	ParamsRaw json.RawMessage `json:"params"`
-	Params    map[string]string
+	Params    map[string]interface{}
 }
 
 type BasicJob struct {
@@ -39,76 +35,11 @@ func (bj *BasicJob) UnmarshalJSON(b []byte) error {
 	} else {
 		return err
 	}
-
 }
 
-func (job BasicJob) GetBasicJob() BasicJob {
-	return job
+func (bj BasicJob) GetBasicJob() BasicJob {
+	return bj
 }
-
-// ----------------
-
-type dockerHostTaskJob struct {
-	Command string `json:"command"`
-}
-
-type DockerHostTaskJob struct {
-	*BasicJob
-	*dockerHostTaskJob
-}
-
-func (job *DockerHostTaskJob) UnmarshalJSON(b []byte) error {
-	var bj BasicJob
-	if err := json.Unmarshal(b, &bj); err == nil {
-		var j dockerHostTaskJob
-		if err := json.Unmarshal(bj.basicJob.ParamsRaw, &j); err != nil {
-			return err
-		}
-		*job = DockerHostTaskJob{BasicJob: &bj, dockerHostTaskJob: &j}
-		return nil
-	} else {
-		return err
-	}
-
-}
-
-func (job DockerHostTaskJob) GetBasicJob() BasicJob {
-	return *job.BasicJob
-}
-
-// ----------------
-
-type dockerServiceTaskJob struct {
-	Task        string `json:"task"`
-	ServiceName string `json:"service_name"`
-	PrivateIp   string `json:"private_ip"`
-}
-
-type DockerServiceTaskJob struct {
-	*BasicJob
-	*dockerServiceTaskJob
-}
-
-func (job *DockerServiceTaskJob) UnmarshalJSON(b []byte) error {
-	var bj BasicJob
-	if err := json.Unmarshal(b, &bj); err == nil {
-		var j dockerServiceTaskJob
-		if err := json.Unmarshal(bj.basicJob.ParamsRaw, &j); err != nil {
-			return err
-		}
-		*job = DockerServiceTaskJob{BasicJob: &bj, dockerServiceTaskJob: &j}
-		return nil
-	} else {
-		return err
-	}
-
-}
-
-func (job DockerServiceTaskJob) GetBasicJob() BasicJob {
-	return *job.BasicJob
-}
-
-// ----------------
 
 func (c *Client) GetJobs(stackUid string, serverUid *string) ([]Job, error) {
 	fmt.Printf("")
@@ -173,45 +104,18 @@ func (c *Client) GetJob(stackUid string, jobUid string) (*Job, error) {
 	return JobFactory(*jobRes)
 }
 
-func JobFactory(jobRes json.RawMessage) (*Job, error) {
-	var T = struct {
-		Type string `json:"type"`
-	}{}
-
-	if err := json.Unmarshal(jobRes, &T); err != nil {
-		return nil, err
-	}
-
-	var job Job
-
-	switch T.Type {
-	case "DockerHostTaskJob":
-		job = new(DockerHostTaskJob)
-	case "DockerServiceTaskJob":
-		job = new(DockerServiceTaskJob)
-	default:
-		job = new(BasicJob)
-	}
-
-	if err := json.Unmarshal(jobRes, &job); err != nil {
-		return nil, err
-	}
-
-	return &job, nil
-}
-
-func (c *Client) RunJobNow(stackUid string, jobUid string, jobVars *string) (*AsyncResult, error) {
+func (c *Client) RunJobNow(stackUid string, jobUid string, jobArgs *string) (*AsyncResult, error) {
 	var params interface{}
-	if jobVars == nil {
+	if jobArgs == nil {
 		params = nil
 	} else {
 		params = struct {
-			JobVars string `json:"job_vars"`
+			JobArgs string `json:"job_args"`
 		}{
-			JobVars: *jobVars,
+			JobArgs: *jobArgs,
 		}
 	}
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/jobs/"+jobUid+"run_now.json", params, nil)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/jobs/"+jobUid+"/run_now.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
