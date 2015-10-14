@@ -17,6 +17,7 @@ import (
 
 	"code.google.com/p/go-uuid/uuid"
 	"code.google.com/p/goauth2/oauth"
+	"github.com/skratchdot/open-golang/open"
 )
 
 const (
@@ -305,8 +306,14 @@ func Authorize(tokenDir, tokenFile string) {
 	if err != nil {
 
 		url := config.AuthCodeURL("")
-		fmt.Println("Please open the following URL in your browser and paste the access code here:")
-		fmt.Println(url)
+		e := open.Run(url)
+		if e != nil {
+			fmt.Printf("Counldn't open the browser because %s\n", e.Error())
+			fmt.Println("Please open the following URL in your browser and paste the access code here:")
+			fmt.Println(url)
+		} else {
+			fmt.Println("Openning the browser so you can approve the client access")
+		}
 
 		var s string
 		fmt.Println("Authorization Code:")
