@@ -1,0 +1,28 @@
+{
+	"ImportPath": "github.com/cloud66/cloud66",
+	"GoVersion": "go1.5.1",
+	"Deps": [
+		{
+			"ImportPath": "code.google.com/p/go-uuid/uuid",
+			"Comment": "null-15",
+			"Rev": "35bc42037350f0078e3c974c6ea690f1926603ab"
+		},
+		{
+			"ImportPath": "code.google.com/p/goauth2/oauth",
+			"Comment": "weekly-57",
+			"Rev": "222e66a2882ef45c3153c86c0aa82fe65fc29a78"
+		},
+		{
+			"ImportPath": "github.com/cloud66/fayego/fayeclient",
+			"Rev": "95df6d2fd2d062752e423aee118ab15361cc6339"
+		},
+		{
+			"ImportPath": "github.com/cloud66/fayego/fayeserver",
+			"Rev": "95df6d2fd2d062752e423aee118ab15361cc6339"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Rev": "b6ab76f1fe9803ee1d59e7e5b2a797c1fe897ce5"
+		}
+	]
+}
