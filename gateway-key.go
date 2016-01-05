@@ -46,7 +46,7 @@ func (c *Client) AddGatewayKey(accountId int, keyContent string, ttl int) error 
 }
 
 func (c *Client) RemoveGatewayKey(accountId int) error {
-	req, err := c.NewRequest("DELETE", fmt.Sprintf("/accounts/%d/gateway_key.json", accountId), nil, nil)
+	req, err := c.NewRequest("DELETE", fmt.Sprintf("/accounts/%d/gateway_key/0.json", accountId), nil, nil)
 	if err != nil {
 		return err
 	}
