@@ -50,9 +50,8 @@ func (c *Client) AddGateway(accountId int, name string, address string, username
 	return nil
 }
 
-/*
-func (c *Client) RemoveGatewayKey(accountId int) error {
-	req, err := c.NewRequest("DELETE", fmt.Sprintf("/accounts/%d/gateway_key/0.json", accountId), nil, nil)
+func (c *Client) RemoveGateway(accountId int, gatewayId int) error {
+	req, err := c.NewRequest("DELETE", fmt.Sprintf("/accounts/%d/gateways/%d.json", accountId, gatewayId), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -64,4 +63,26 @@ func (c *Client) RemoveGatewayKey(accountId int) error {
 
 	return nil
 }
-*/
+
+func (c *Client) UpdateGateway(accountId int, gatewayId int, keyContent string, ttl int) error {
+	params := struct {
+		Content string `json:"content"`
+		Ttl     int    `json:"ttl"`
+	}{
+		Content: keyContent,
+		Ttl:     ttl,
+	}
+
+	req, err := c.NewRequest("PUT", fmt.Sprintf("/accounts/%d/gateways/%d.json", accountId, gatewayId), params, nil)
+	if err != nil {
+		return err
+	}
+
+	err = c.DoReq(req, nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
