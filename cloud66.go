@@ -312,7 +312,7 @@ func Authorize(tokenDir, tokenFile string) {
 			fmt.Println("Please open the following URL in your browser and paste the access code here:")
 			fmt.Println(url)
 		} else {
-			fmt.Println("Openning the browser so you can approve the client access")
+			fmt.Println("Opening the browser so you can approve the client access")
 		}
 
 		var s string
