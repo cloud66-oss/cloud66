@@ -441,6 +441,23 @@ func (c *Client) RedeployStack(stackUid string, gitRef string, services []string
 	return redeployRes, c.DoReq(req, &redeployRes, nil)
 }
 
+func (c *Client) StackReboot(stackUid string, strategy string, group string) (*AsyncResult, error) {
+	params := struct {
+		Strategy string `json:"strategy"`
+		Group    string `json:"group"`
+	}{
+		Strategy: strategy,
+		Group:    group,
+	}
+
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/reboot_servers.json", params, nil)
+	if err != nil {
+		return nil, err
+	}
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
+}
+
 func (c *Client) InvokeStackAction(stackUid string, action string) (*AsyncResult, error) {
 	params := struct {
 		Command string `json:"command"`

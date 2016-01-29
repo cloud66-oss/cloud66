@@ -149,7 +149,7 @@ func (c *Client) ServerSet(stackUid string, serverUid string, key string, value 
 }
 
 func (c *Client) ServerReboot(stackUid string, serverUid string) (*AsyncResult, error) {
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/servers/"+serverUid+"/reboot.json", nil, nil)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/servers/"+serverUid+"/reboot_server.json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
