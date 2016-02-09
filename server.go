@@ -37,6 +37,9 @@ type Server struct {
 	PersonalKey      bool                          `json:"personal_key"`
 	SshPrivateKey    *string                       `json:"ssh_private_key"`
 	Notifications    map[string]ServerNotification `json:"notifications"`
+	HasDeployGateway   bool                          `json:"has_deploy_gateway"`
+	DeployGatewayAddress  string                   `json:"deploy_gateway_address"`
+	DeployGatewayUsername  string                   `json:"deploy_gateway_user_name"`
 }
 
 func (s Server) Health() string {
