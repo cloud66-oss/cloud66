@@ -55,7 +55,7 @@ type AccessProfileType struct {
 }
 
 type User struct {
-	Id               int               `json:"user_id"`
+	Id               int               `json:"id"`
 	Email            string            `json:"email"`
 	PrimaryAccountId int               `json:"primary_account_id"`
 	Locked           bool              `json:"locked"`
