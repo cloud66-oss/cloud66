@@ -161,8 +161,8 @@ func (c *Client) GetUser(userId int) (*User, error) {
 	return userRes, c.DoReq(req, &userRes, nil)
 }
 
-func (c *Client) UpdateUser(userId int, apt AccessProfileType) (*User, error) {
-	req, err := c.NewRequest("PUT", fmt.Sprintf("/users/%d.json", userId), apt, nil)
+func (c *Client) UpdateUser(userId int, user User) (*User, error) {
+	req, err := c.NewRequest("PUT", fmt.Sprintf("/users/%d.json", userId), user, nil)
 	if err != nil {
 		return nil, err
 	}
