@@ -10,10 +10,13 @@ type Gateway struct {
 	Name      string    `json:"name"`
 	Username  string    `json:"username"`
 	Address   string    `json:"address"`
+	PrivateIp string    `json:"private_ip"`
 	Ttl       string    `json:"ttl"`
 	Content   string    `json:"content"`
 	CreatedAt time.Time `json:"created_at_iso"`
 	UpdatedAt time.Time `json:"updated_at_iso"`
+	CreatedBy string    `json:"created_by"`
+	UpdatedBy string    `json:"updated_by"`
 }
 
 func (c *Client) ListGateways(accountId int) ([]Gateway, error) {
@@ -26,15 +29,17 @@ func (c *Client) ListGateways(accountId int) ([]Gateway, error) {
 	return result, c.DoReq(req, &result, nil)
 }
 
-func (c *Client) AddGateway(accountId int, name string, address string, username string) error {
+func (c *Client) AddGateway(accountId int, name string, address string, username string,private_ip string) error {
 	params := struct {
-		Name     string `json:"name"`
-		Address  string `json:"address"`
-		Username string `json:"username"`
+		Name      string `json:"name"`
+		Address   string `json:"address"`
+		PrivateIp string    `json:"private_ip"`
+		Username  string `json:"username"`
 	}{
-		Name:     name,
-		Address:  address,
-		Username: username,
+		Name:      name,
+		Address:   address,
+		PrivateIp: private_ip,
+		Username:  username,
 	}
 
 	req, err := c.NewRequest("POST", fmt.Sprintf("/accounts/%d/gateways.json", accountId), params, nil)
