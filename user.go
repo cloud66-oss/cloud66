@@ -52,6 +52,7 @@ type AccountProfileType struct {
 type AccessProfileType struct {
 	AccountProfile AccountProfileType `json:"account_profile"`
 	StackProfiles  []StackProfileType `json:"stack_profiles"`
+	Override       bool               `json:"override"`
 }
 
 type User struct {
@@ -161,7 +162,7 @@ func (c *Client) GetUser(userId int) (*User, error) {
 	return userRes, c.DoReq(req, &userRes, nil)
 }
 
-func (c *Client) UpdateUser(userId int, user User) (*User, error) {
+func (c *Client) UpdateUser(userId int, user User, override bool) (*User, error) {
 	req, err := c.NewRequest("PUT", fmt.Sprintf("/users/%d.json", userId), user, nil)
 	if err != nil {
 		return nil, err
