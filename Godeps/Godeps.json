@@ -1,16 +1,16 @@
 {
 	"ImportPath": "github.com/cloud66/cloud66",
-	"GoVersion": "go1.5.1",
+	"GoVersion": "go1.6",
 	"Deps": [
 		{
 			"ImportPath": "code.google.com/p/go-uuid/uuid",
 			"Comment": "null-15",
-			"Rev": "35bc42037350f0078e3c974c6ea690f1926603ab"
+			"Rev": "'35bc42037350f0078e3c974c6ea690f1926603ab'"
 		},
 		{
 			"ImportPath": "code.google.com/p/goauth2/oauth",
 			"Comment": "weekly-57",
-			"Rev": "222e66a2882ef45c3153c86c0aa82fe65fc29a78"
+			"Rev": "'222e66a2882ef45c3153c86c0aa82fe65fc29a78'"
 		},
 		{
 			"ImportPath": "github.com/cloud66/fayego/fayeclient",
@@ -23,6 +23,10 @@
 		{
 			"ImportPath": "github.com/gorilla/websocket",
 			"Rev": "b6ab76f1fe9803ee1d59e7e5b2a797c1fe897ce5"
+		},
+		{
+			"ImportPath": "github.com/skratchdot/open-golang/open",
+			"Rev": "c8748311a7528d0ba7330d302adbc5a677ef9c9e"
 		}
 	]
 }
