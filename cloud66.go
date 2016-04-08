@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"code.google.com/p/go-uuid/uuid"
@@ -47,6 +48,7 @@ type Client struct {
 	HTTP              *http.Client
 	URL               string
 	UserAgent         string
+	AccountId         *int
 	Debug             bool
 	AdditionalHeaders http.Header
 }
@@ -156,6 +158,9 @@ func (c *Client) NewRequest(method, path string, body interface{}, query_strings
 	req.Header.Set("Request-Id", uuid.New())
 	if os.Getenv("CXTOKEN") != "" {
 		req.Header.Set("X-CxToken", os.Getenv("CXTOKEN"))
+	}
+	if c.AccountId != nil {
+		req.Header.Set("X-Account", strconv.Itoa(*c.AccountId))
 	}
 	useragent := c.UserAgent
 	if useragent == "" {
