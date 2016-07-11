@@ -80,22 +80,10 @@ func (c *Client) AccountInfos() ([]Account, error) {
 
 // AccountOTP returns the OTP from the server. If accountId and stackId are passed
 // (!= 0) then they will be passed up
-func (c *Client) AccountOTP(accountID int, stackID int) (string, error) {
-	queryStrings := make(map[string]string)
-	if accountID != 0 {
-		queryStrings["account_id"] = strconv.Itoa(accountID)
-	}
-	if stackID != 0 {
-		queryStrings["stack_id"] = strconv.Itoa(stackID)
-	}
-
+func (c *Client) AccountOTP() (string, error) {
 	var req *http.Request
 	var err error
-	if len(queryStrings) != 0 {
-		req, err = c.NewRequest("GET", "/accounts/otp.json", nil, queryStrings)
-	} else {
-		req, err = c.NewRequest("GET", "/accounts/otp.json", nil, nil)
-	}
+	req, err = c.NewRequest("GET", "/accounts/otp.json", nil, nil)
 
 	var otp *OTP
 	err = c.DoReq(req, &otp, nil)
