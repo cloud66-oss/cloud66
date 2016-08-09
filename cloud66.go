@@ -311,6 +311,7 @@ func Authorize(tokenDir, tokenFile string) {
 	if err != nil {
 
 		url := config.AuthCodeURL("")
+		fmt.Printf("Openning %s\n", url)
 		e := webbrowser.Open(url)
 		if e != nil {
 			fmt.Printf("Counldn't open the browser because %s\n", e.Error())
