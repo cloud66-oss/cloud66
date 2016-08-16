@@ -85,8 +85,6 @@ func (c *Client) ScaleProcess(stackUid string, processName string, serverCount m
 	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
-// need to include:
-//pause_process, resume_process, discard pause_process, restart_process
 func (c *Client) InvokeProcessAction(stackUid string, processName *string, serverUid *string, action string) (*AsyncResult, error) {
 	var params interface{}
 	if serverUid != nil && processName != nil {
