@@ -3,10 +3,11 @@ package cloud66
 import "strconv"
 
 type Process struct {
-	Name               string         `json:"name"`
-	Md5                string         `json:"md5"`
-	Command            string         `json:"command"`
-	ServerProcessCount map[string]int `json:"servers"`
+	Name                string         `json:"name"`
+	Md5                 string         `json:"md5"`
+	Command             string         `json:"command"`
+	ServerProcessCount  map[string]int `json:"servers"`
+	ServerProcessPauses map[string]int `json:"servers_pauses"`
 }
 
 func (c *Client) GetProcesses(stackUid string, serverUid *string) ([]Process, error) {
