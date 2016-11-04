@@ -22,19 +22,13 @@ import (
 )
 
 const (
-	baseURL                = "https://app.cloud66.com"
-	productionClientId     = "d4631fd51633bef0c04c6f946428a61fb9089abf4c1e13c15e9742cafd84a91f"
-	productionClientSecret = "e663473f7b991504eb561e208995de15550f499b6840299df588cebe981ba48e"
-	scope                  = "public redeploy jobs users admin"
-	redirectURL            = "urn:ietf:wg:oauth:2.0:oob"
+	baseURL = "https://app.cloud66.com"
 )
 
 var (
 	defaultUserAgent string
 	baseAPIURL       string
 	defaultAPIURL    string
-	clientId         = os.Getenv("CX_APP_ID")
-	clientSecret     = os.Getenv("CX_APP_SECRET")
 	authURL          string
 	tokenURL         string
 )
@@ -282,21 +276,15 @@ func checkResp(res *http.Response) error {
 	return nil
 }
 
-func Authorize(tokenDir, tokenFile string) {
+func Authorize(tokenDir, tokenFile, clientID, clientSecret, redirectURL, scope string) {
 	err := os.MkdirAll(tokenDir, 0777)
 	if err != nil {
 		fmt.Printf("Failed to create directory for the token at %s\n", tokenDir)
 	}
 	cachefile := filepath.Join(tokenDir, tokenFile)
 
-	if clientId == "" {
-		clientId = productionClientId
-	}
-	if clientSecret == "" {
-		clientSecret = productionClientSecret
-	}
 	config := &oauth.Config{
-		ClientId:     clientId,
+		ClientId:     clientID,
 		ClientSecret: clientSecret,
 		RedirectURL:  redirectURL,
 		Scope:        scope,
@@ -335,9 +323,9 @@ func Authorize(tokenDir, tokenFile string) {
 	}
 }
 
-func GetClient(tokenDir, tokenFile, version string) Client {
+func GetClient(tokenDir, tokenFile, version, agentPrefix, clientId, clientSecret, redirectURL, scope string) Client {
 	cachefile := filepath.Join(tokenDir, tokenFile)
-	defaultUserAgent = "cx/" + version + " (" + runtime.GOOS + "; " + runtime.GOARCH + ")"
+	defaultUserAgent = agentPrefix + "/" + version + " (" + runtime.GOOS + "; " + runtime.GOARCH + ")"
 
 	config := &oauth.Config{
 		ClientId:     clientId,
