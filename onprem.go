@@ -1,6 +1,9 @@
 package cloud66
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Onprem struct {
 	Uid       string      `json:"uid"`
@@ -18,4 +21,23 @@ func (c *Client) ListOnprems() ([]Onprem, error) {
 
 	var result []Onprem
 	return result, c.DoReq(req, &result, nil)
+}
+
+func (c *Client) SaveOnprem(onprem Onprem) (*Onprem, error) {
+	req, err := c.NewRequest("PUT", fmt.Sprintf("/onprems/%s.json", onprem.Uid), onprem, nil)
+	if err != nil {
+		return nil, err
+	}
+	var onpremRes *Onprem
+	return onpremRes, c.DoReq(req, &onpremRes, nil)
+}
+
+func (c *Client) GetOnprem(uid string) (*Onprem, error) {
+	req, err := c.NewRequest("GET", fmt.Sprintf("/onprems/%s.json", uid), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var onpremRes *Onprem
+	return onpremRes, c.DoReq(req, &onpremRes, nil)
 }
