@@ -16,8 +16,8 @@ import (
 	"strconv"
 	"strings"
 
-	"code.google.com/p/go-uuid/uuid"
-	"code.google.com/p/goauth2/oauth"
+	"github.com/khash/oauth/oauth"
+	"github.com/pborman/uuid"
 	"github.com/toqueteos/webbrowser"
 )
 

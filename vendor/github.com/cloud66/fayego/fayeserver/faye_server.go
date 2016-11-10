@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"sync"
 
-	"code.google.com/p/go-uuid/uuid"
+	"github.com/pborman/uuid"
 )
 
 const CHANNEL_HANDSHAKE = "/meta/handshake"
@@ -40,7 +40,7 @@ func NewFayeServer() *FayeServer {
 // general message handling
 /*
 
-*/
+ */
 func (f *FayeServer) publishToChannel(channel, data string) {
 	subs, ok := f.Subscriptions[channel]
 	fmt.Println("Subs: ", f.Subscriptions, "count: ", len(f.Subscriptions[channel]))
@@ -51,7 +51,7 @@ func (f *FayeServer) publishToChannel(channel, data string) {
 
 /*
 
-*/
+ */
 func (f *FayeServer) multiplexWrite(subs []Client, data string) {
 	var group sync.WaitGroup
 	for i := range subs {

@@ -12,12 +12,11 @@ package fayeserver
 
 import (
 	"fmt"
-	//eventsource "github.com/antage/eventsource.v1"
-	"github.com/gorilla/websocket"
 	"net/http"
 	"os"
-	//	"strings"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 // =====
