@@ -112,7 +112,7 @@ func (c *Client) GetBackupSegment(stackUid string, backupId int, extension strin
 
 }
 
-func (c *Client) NewBackup(stackUid string, dbtypes *string, frequency *string, keep *int, gzip *bool, exclude_tables *string, run_on_replica *bool) error {
+func (c *Client) NewBackup(stackUid string, dbtypes *string, frequency *string, keep *int, gzip *bool, exclude_tables *string, run_on_replica *bool, logical_backup *bool) error {
 
 	params := struct {
 		DbType        *string `json:"db_type"`
@@ -121,6 +121,7 @@ func (c *Client) NewBackup(stackUid string, dbtypes *string, frequency *string, 
 		Gzip          *bool   `json:"gzip"`
 		ExcludeTables *string `json:"excluded_tables"`
 		RunOnReplica  *bool   `json:"run_on_replica_server"`
+		LogicalBackup *bool   `json:"logical_backup"`
 	}{
 		DbType:        dbtypes,
 		Frequency:     frequency,
@@ -128,6 +129,7 @@ func (c *Client) NewBackup(stackUid string, dbtypes *string, frequency *string, 
 		Gzip:          gzip,
 		ExcludeTables: exclude_tables,
 		RunOnReplica:  run_on_replica,
+		LogicalBackup: logical_backup,
 	}
 
 	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/backups.json", params, nil)
