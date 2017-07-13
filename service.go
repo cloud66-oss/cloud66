@@ -14,6 +14,7 @@ type Service struct {
 	BuildCommand  string      `json:"build_command"`
 	DeployCommand string      `json:"deploy_command"`
 	WrapCommand   string      `json:"wrap_command"`
+	DesiredCount  int         `json:"desired_count"`
 }
 
 func (c *Client) GetServices(stackUid string, serverUid *string) ([]Service, error) {
