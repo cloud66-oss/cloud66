@@ -48,6 +48,7 @@ type Stack struct {
 	Backend         string     `json:"backend"`
 	Version         string     `json:"version"`
 	Revision        string     `json:"revision"`
+	Namespaces      []string   `json:"namespaces"`
 }
 
 type StackSetting struct {
