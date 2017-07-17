@@ -45,6 +45,10 @@ type Stack struct {
 	UpdatedAt       time.Time  `json:"updated_at_iso"`
 	CreatedAt       time.Time  `json:"created_at_iso"`
 	DeployDir       string     `json:"deploy_directory"`
+	Backend         string     `json:"backend"`
+	Version         string     `json:"version"`
+	Revision        string     `json:"revision"`
+	Namespaces      []string   `json:"namespaces"`
 }
 
 type StackSetting struct {
