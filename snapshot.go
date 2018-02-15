@@ -63,6 +63,10 @@ func (c *Client) Snapshots(stackUid string) ([]Snapshot, error) {
 func (c *Client) RenderSnapshot(stackUid string, snapshotUid string, formationUid string, requestFiles []string, useLatest bool) (*Renders, error) {
 	query_strings := make(map[string]string)
 	query_strings["requested_files"] = strings.Join(requestFiles, ",")
+	if !useLatest {
+		// default is true on the server
+		query_strings["use_latest"] = "false"
+	}
 
 	var result *Renders
 
