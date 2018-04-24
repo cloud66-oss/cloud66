@@ -8,7 +8,7 @@ Cloud 66 Go Library
 
 ### Authorization
     
-By default, you can use [Cloud66 Toolbet](http://help.cloud66.com/toolbelt/toolbelt-introduction) token which stores in `~/.cloud66/cx.json`. If file doesn't exist, you can athorize it yourself
+By default, you can use [Cloud66 Toolbet](http://help.cloud66.com/toolbelt/toolbelt-introduction) token which stores in `~/.cloud66/cx.json`. If the file doesn't exist, you can authorize it yourself
 
     var (
 		tokenFile    string = "YOUR_TOKEN_FILENAME"
