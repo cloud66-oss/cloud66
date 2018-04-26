@@ -49,6 +49,9 @@ type Stack struct {
 	Version         string     `json:"version"`
 	Revision        string     `json:"revision"`
 	Namespaces      []string   `json:"namespaces"`
+	AccountName     string     `json:"account_name"`
+	IsCluster       string     `json:"is_cluster"`
+	InsideCluster   string     `json:"inside_cluster"`
 }
 
 type StackSetting struct {
@@ -112,9 +115,7 @@ func (c *Client) StackList() ([]Stack, error) {
 		} else {
 			break
 		}
-
 	}
-
 	return result, nil
 }
 
