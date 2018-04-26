@@ -50,8 +50,8 @@ type Stack struct {
 	Revision        string     `json:"revision"`
 	Namespaces      []string   `json:"namespaces"`
 	AccountName     string     `json:"account_name"`
-	IsCluster       string     `json:"is_cluster"`
-	InsideCluster   string     `json:"inside_cluster"`
+	IsCluster       bool       `json:"is_cluster"`
+	IsInsideCluster bool       `json:"is_inside_cluster"`
 }
 
 type StackSetting struct {
