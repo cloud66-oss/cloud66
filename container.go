@@ -15,6 +15,7 @@ const (
 	CNT_HEALTH_UNVERIFIED = 0
 	CNT_HEALTH_UP         = 1
 	CNT_HEALTH_DOWN       = 2
+	CNT_HEALTH_NA         = 3
 )
 
 type Container struct {

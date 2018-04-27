@@ -52,6 +52,7 @@ type Stack struct {
 	AccountName     string     `json:"account_name"`
 	IsCluster       bool       `json:"is_cluster"`
 	IsInsideCluster bool       `json:"is_inside_cluster"`
+	ClusterName     string     `json:"cluster_name"`
 }
 
 type StackSetting struct {
@@ -83,6 +84,10 @@ type RedeployResponse struct {
 
 func (s Stack) Status() string {
 	return stackStatus[s.StatusCode]
+}
+
+func (s Stack) Namespace() string {
+	return s.Namespaces[0]
 }
 
 func (s Stack) Health() string {
