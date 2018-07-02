@@ -26,6 +26,7 @@ type Renders struct {
 	Content        map[string]string `json:"content"`
 	Errors         []RenderError     `json:"errors"`
 	RequestedFiles []string          `json:"requested_files"`
+	StencilGroup   string            `json:"stencil_group`
 }
 
 func (c *Client) Snapshots(stackUid string) ([]Snapshot, error) {
@@ -60,12 +61,15 @@ func (c *Client) Snapshots(stackUid string) ([]Snapshot, error) {
 	return result, nil
 }
 
-func (c *Client) RenderSnapshot(stackUid string, snapshotUid string, formationUid string, requestFiles []string, useLatest bool) (*Renders, error) {
+func (c *Client) RenderSnapshot(stackUid string, snapshotUid string, formationUid string, requestFiles []string, useLatest bool, stencilGroup string) (*Renders, error) {
 	query_strings := make(map[string]string)
 	query_strings["requested_files"] = strings.Join(requestFiles, ",")
 	if !useLatest {
 		// default is true on the server
 		query_strings["use_latest"] = "false"
+	}
+	if stencilGroup != "" {
+		query_strings["stencil_group"] = stencilGroup
 	}
 
 	var result *Renders
