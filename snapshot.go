@@ -1,6 +1,7 @@
 package cloud66
 
 import (
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -22,8 +23,16 @@ type RenderError struct {
 	Stencil string `json:"stencil"`
 }
 
+type StencilRender struct {
+	Content  string `json:"content"`
+	Sequence int    `json:"sequence"`
+	Filename string `json:"filename"`
+}
+
+type StencilRenderList []StencilRender
+
 type Renders struct {
-	Content        map[string]string `json:"content"`
+	Stencils       StencilRenderList `json:"stencils"`
 	Errors         []RenderError     `json:"errors"`
 	RequestedFiles []string          `json:"requested_files"`
 	StencilGroup   string            `json:"stencil_group`
@@ -85,5 +94,11 @@ func (c *Client) RenderSnapshot(stackUid string, snapshotUid string, formationUi
 		return nil, err
 	}
 
+	sort.Sort(result.Stencils)
+
 	return result, nil
 }
+
+func (p StencilRenderList) Len() int           { return len(p) }
+func (p StencilRenderList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p StencilRenderList) Less(i, j int) bool { return p[i].Sequence < p[j].Sequence }
