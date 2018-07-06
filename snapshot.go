@@ -17,10 +17,11 @@ type Snapshot struct {
 	Tags        []string  `json:"tags"`
 }
 
-type RenderError struct {
-	Text    string `json:"text"`
-	Link    string `json:"link"`
-	Stencil string `json:"stencil"`
+type RenderIssue struct {
+	Text     string `json:"text"`
+	Link     string `json:"link"`
+	Stencil  string `json:"stencil"`
+	Severity string `json:"severity"`
 }
 
 type StencilRender struct {
@@ -33,9 +34,20 @@ type StencilRenderList []StencilRender
 
 type Renders struct {
 	Stencils       StencilRenderList `json:"stencils"`
-	Errors         []RenderError     `json:"errors"`
+	Issues         []RenderIssue     `json:"issues"`
 	RequestedFiles []string          `json:"requested_files"`
 	StencilGroup   string            `json:"stencil_group`
+}
+
+func (r *Renders) Errors() []RenderIssue {
+	var foundErrors []RenderIssue
+	for _, issue := range r.Issues {
+		if issue.Severity == "error" {
+			foundErrors = append(foundErrors, issue)
+		}
+	}
+
+	return foundErrors
 }
 
 func (c *Client) Snapshots(stackUid string) ([]Snapshot, error) {
