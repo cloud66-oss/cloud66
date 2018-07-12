@@ -1,0 +1,82 @@
+package cloud66
+
+import (
+	"fmt"
+	"strconv"
+	"time"
+)
+
+var baseTemplateStatus = map[int]string{
+	1: "Unknown",                             // ST_UNKNOWN
+	2: "Queued to be pulled and verified",    // ST_QUEUED
+	3: "Pulling repository",                  // ST_PULLING
+	4: "Verifying repository",                // ST_VERIFYING
+	5: "Failed to pull or verify repository", // ST_ERROR
+	6: "Available",                           // ST_AVAILABLE
+}
+
+type BaseTemplate struct {
+	Uid        string     `json:"uid"`
+	Name       string     `json:"name"`
+	GitRepo    string     `json:"git_repo"`
+	GitBranch  string     `json:"git_branch"`
+	StatusCode int        `json:"status"`
+	LastSync   *time.Time `json:"last_sync_iso"`
+	CreatedAt  time.Time  `json:"created_at_iso"`
+	UpdatedAt  time.Time  `json:"updated_at_iso"`
+}
+
+func (bt BaseTemplate) Status() string {
+	return baseTemplateStatus[bt.StatusCode]
+}
+
+func (c *Client) ListBaseTemplates() ([]BaseTemplate, error) {
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
+
+	var p Pagination
+	var result []BaseTemplate
+	var pageResult []BaseTemplate
+
+	for {
+		req, err := c.NewRequest("GET", "/base_templates.json", nil, queryStrings)
+		if err != nil {
+			return nil, err
+		}
+
+		pageResult = nil
+		err = c.DoReq(req, &pageResult, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, pageResult...)
+		if p.Current < p.Next {
+			queryStrings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+func (c *Client) GetBaseTemplate(baseTemplateUID string) (*BaseTemplate, error) {
+	req, err := c.NewRequest("GET", fmt.Sprintf("/base_templates/%s.json", baseTemplateUID), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseTemplateResult *BaseTemplate
+	return baseTemplateResult, c.DoReq(req, &baseTemplateResult, nil)
+}
+
+func (c *Client) SyncBaseTemplate(baseTemplateUID string) (*BaseTemplate, error) {
+	req, err := c.NewRequest("POST", fmt.Sprintf("/base_templates/%s/sync.json", baseTemplateUID), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseTemplateResult *BaseTemplate
+	return baseTemplateResult, c.DoReq(req, &baseTemplateResult, nil)
+}
