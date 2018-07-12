@@ -1,13 +1,13 @@
 Cloud 66 Go Library
 =======
 
-### Getting Started 
+### Getting Started
 
-    go get github.com/cloud66/cloud66
+    go get github.com/cloud66-oss/cloud66
 
 
 ### Authorization
-    
+
 By default, you can use [Cloud66 Toolbet](http://help.cloud66.com/toolbelt/toolbelt-introduction) token which stores in `~/.cloud66/cx.json`. If the file doesn't exist, you can authorize it yourself
 
     var (
