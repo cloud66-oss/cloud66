@@ -26,6 +26,10 @@ type BaseTemplate struct {
 	UpdatedAt  time.Time  `json:"updated_at_iso"`
 }
 
+type wrappedBaseTemplate struct {
+	BaseTemplate *BaseTemplate `json:"base_template"`
+}
+
 func (bt BaseTemplate) Status() string {
 	return baseTemplateStatus[bt.StatusCode]
 }
@@ -63,6 +67,36 @@ func (c *Client) ListBaseTemplates() ([]BaseTemplate, error) {
 
 func (c *Client) GetBaseTemplate(baseTemplateUID string) (*BaseTemplate, error) {
 	req, err := c.NewRequest("GET", fmt.Sprintf("/base_templates/%s.json", baseTemplateUID), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseTemplateResult *BaseTemplate
+	return baseTemplateResult, c.DoReq(req, &baseTemplateResult, nil)
+}
+
+func (c *Client) UpdateBaseTemplate(baseTemplateUID string, baseTemplate *BaseTemplate) (*BaseTemplate, error) {
+	req, err := c.NewRequest("PUT", fmt.Sprintf("/base_templates/%s.json", baseTemplateUID), wrappedBaseTemplate{baseTemplate}, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseTemplateResult *BaseTemplate
+	return baseTemplateResult, c.DoReq(req, &baseTemplateResult, nil)
+}
+
+func (c *Client) CreateBaseTemplate(baseTemplate *BaseTemplate) (*BaseTemplate, error) {
+	req, err := c.NewRequest("POST", "/base_templates.json", wrappedBaseTemplate{baseTemplate}, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseTemplateResult *BaseTemplate
+	return baseTemplateResult, c.DoReq(req, &baseTemplateResult, nil)
+}
+
+func (c *Client) DestroyBaseTemplate(baseTemplateUID string) (*BaseTemplate, error) {
+	req, err := c.NewRequest("DELETE", fmt.Sprintf("/base_templates/%s.json", baseTemplateUID), nil, nil)
 	if err != nil {
 		return nil, err
 	}
