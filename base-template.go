@@ -30,6 +30,10 @@ type wrappedBaseTemplate struct {
 	BaseTemplate *BaseTemplate `json:"base_template"`
 }
 
+func (bt BaseTemplate) String() string {
+	return fmt.Sprintf("%s:%s", bt.GitRepo, bt.GitBranch)
+}
+
 func (bt BaseTemplate) Status() string {
 	return baseTemplateStatus[bt.StatusCode]
 }

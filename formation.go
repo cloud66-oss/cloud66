@@ -1,29 +1,36 @@
 package cloud66
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 )
 
 type Formation struct {
-	Uid          string    `json:"uid"`
-	Name         string    `json:"name"`
-	TemplateBase string    `json:"template_base"`
-	CreatedAt    time.Time `json:"created_at_iso"`
-	UpdatedAt    time.Time `json:"updated_at_iso"`
-	Tags         []string  `json:"tags"`
+	Uid           string         `json:"uid"`
+	Name          string         `json:"name"`
+	Stencils      []Stencil      `json:"stencils"`
+	StencilGroups []StencilGroup `json:"stencil_groups"`
+	BaseTemplate  BaseTemplate   `json:"base_template"`
+	Policies      []Policy       `json:"policies"`
+	CreatedAt     time.Time      `json:"created_at_iso"`
+	UpdatedAt     time.Time      `json:"updated_at_iso"`
+	Tags          []string       `json:"tags"`
 }
 
-func (c *Client) Formations(stackUid string) ([]Formation, error) {
+func (c *Client) Formations(stackUid string, fullContent bool) ([]Formation, error) {
 	query_strings := make(map[string]string)
 	query_strings["page"] = "1"
+	if fullContent {
+		query_strings["full_content"] = "1"
+	}
 
 	var p Pagination
 	var result []Formation
 	var formationRes []Formation
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/formations.json", nil, query_strings)
+		req, err := c.NewRequest("GET", fmt.Sprintf("/stacks/%s/formations.json", stackUid), nil, query_strings)
 		if err != nil {
 			return nil, err
 		}
