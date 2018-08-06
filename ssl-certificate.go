@@ -20,7 +20,7 @@ type SslCertificate struct {
 	Name                    string     `json:"name"`
 	ServerGroupID           int        `json:"server_group_id"`
 	ServerNames             string     `json:"server_names"`
-	SHA256Fingerprint       string     `json:"sha256_fingerprint"`
+	SHA256Fingerprint       *string    `json:"sha256_fingerprint"`
 	CAName                  *string    `json:"ca_name"`
 	Type                    string     `json:"type"`
 	SSLTermination          bool       `json:"ssl_termination"`
