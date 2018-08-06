@@ -47,8 +47,40 @@ func (c *Client) Formations(stackUid string, fullContent bool) ([]Formation, err
 		} else {
 			break
 		}
-
 	}
 
 	return result, nil
+}
+
+func (c *Client) CreateFormation(stackUid string, name string, templateRepo string, templateBranch string, tags []string) (*Formation, error) {
+	type base struct {
+		Repo   string `json:"repo"`
+		Branch string `json:"branch"`
+	}
+
+	params := struct {
+		Base base     `json:"base_template"`
+		Name string   `json:"name"`
+		Tags []string `json:"tags"`
+	}{
+		Name: name,
+		Tags: tags,
+	}
+	params.Base = base{
+		Repo:   templateRepo,
+		Branch: templateBranch,
+	}
+
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/formations.json", params, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var formationRes *Formation
+	err = c.DoReq(req, &formationRes, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return formationRes, nil
 }

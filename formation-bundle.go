@@ -1,6 +1,8 @@
 package cloud66
 
 import (
+	"io/ioutil"
+	"path/filepath"
 	"time"
 )
 
@@ -113,4 +115,23 @@ func createPolicies(policies []Policy) []*BundlePolicy {
 	}
 
 	return result
+}
+
+func (b *BundleStencil) AsStencil(bundlePath string) (*Stencil, error) {
+	ext := filepath.Ext(b.Filename)
+	body, err := ioutil.ReadFile(filepath.Join(bundlePath, "stencils", b.Uid) + ext)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Stencil{
+		Uid:              b.Uid,
+		Filename:         b.Filename,
+		TemplateFilename: b.TemplateFilename,
+		ContextID:        b.ContextID,
+		Status:           b.Status,
+		Tags:             b.Tags,
+		Body:             string(body),
+		Sequence:         b.Sequence,
+	}, nil
 }
