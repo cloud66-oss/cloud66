@@ -50,6 +50,18 @@ func (r *Renders) Errors() []RenderIssue {
 	return foundErrors
 }
 
+func (r *Renders) Warnings() []RenderIssue {
+	var foundErrors []RenderIssue
+	for _, issue := range r.Issues {
+		if issue.Severity == "warning" {
+			foundErrors = append(foundErrors, issue)
+		}
+	}
+
+	return foundErrors
+}
+
+
 func (c *Client) Snapshots(stackUid string) ([]Snapshot, error) {
 	query_strings := make(map[string]string)
 	query_strings["page"] = "1"
