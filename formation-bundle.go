@@ -15,12 +15,12 @@ type FormationBundle struct {
 	BaseTemplates  []*BundleBaseTemplates   `json:"base_template"`
 	Policies       []*BundlePolicy          `json:"policies"`
 	Tags           []string                 `json:"tags"`
-	HelmReleases   []*BundleHelmReleases    `json:"helm_releases"`
+	HelmReleases   []*BundleHelmRelease    `json:"helm_releases"`
 	Configurations []string                 `json:"configuration"`
 }
 
 
-type BundleHelmReleases struct {
+type BundleHelmRelease struct {
 	Name             string `json:"repo"`
 	Version          string `json:"version"`
 	RepositoryURL    string `json:"repository_url"`
@@ -82,7 +82,7 @@ func CreateFormationBundle(formation Formation, app string) *FormationBundle {
 		StencilGroups: createStencilGroups(formation.StencilGroups),
 		Policies:      createPolicies(formation.Policies),
 		Configurations: make([]string, 0), //just a placeholder before creating the real method
-		HelmReleases: make([]*BundleHelmReleases, 0), //just a placeholder before creating the real method
+		HelmReleases: make([]*BundleHelmRelease, 0), //just a placeholder before creating the real method
 	}
 	return bundle
 }
