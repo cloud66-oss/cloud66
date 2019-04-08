@@ -13,6 +13,7 @@ type Formation struct {
 	StencilGroups []StencilGroup `json:"stencil_groups"`
 	BaseTemplate  BaseTemplate   `json:"base_template"`
 	Policies      []Policy       `json:"policies"`
+	HelmReleses   []HelmRelease  `json:"helm_releases"`
 	CreatedAt     time.Time      `json:"created_at_iso"`
 	UpdatedAt     time.Time      `json:"updated_at_iso"`
 	Tags          []string       `json:"tags"`

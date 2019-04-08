@@ -7,24 +7,23 @@ import (
 )
 
 type FormationBundle struct {
-	Version        string                   `json:"version"`
-	Metadata       *Metadata                `json:"metadata"`
-	Uid            string                   `json:"uid"`
-	Name           string                   `json:"name"`
-	StencilGroups  []*BundleStencilGroup    `json:"stencil_groups"`
-	BaseTemplates  []*BundleBaseTemplates   `json:"base_template"`
-	Policies       []*BundlePolicy          `json:"policies"`
-	Tags           []string                 `json:"tags"`
-	HelmReleases   []*BundleHelmRelease    `json:"helm_releases"`
-	Configurations []string                 `json:"configuration"`
+	Version        string                 `json:"version"`
+	Metadata       *Metadata              `json:"metadata"`
+	Uid            string                 `json:"uid"`
+	Name           string                 `json:"name"`
+	StencilGroups  []*BundleStencilGroup  `json:"stencil_groups"`
+	BaseTemplates  []*BundleBaseTemplates `json:"base_template"`
+	Policies       []*BundlePolicy        `json:"policies"`
+	Tags           []string               `json:"tags"`
+	HelmReleases   []*BundleHelmRelease   `json:"helm_releases"`
+	Configurations []string               `json:"configuration"`
 }
 
-
 type BundleHelmRelease struct {
-	Name             string `json:"repo"`
-	Version          string `json:"version"`
-	RepositoryURL    string `json:"repository_url"`
-	Values           string `json:"values_file"`
+	Name          string `json:"repo"`
+	Version       string `json:"version"`
+	RepositoryURL string `json:"repository_url"`
+	Values        string `json:"values_file"`
 }
 
 type BundleConfiguration struct {
@@ -33,15 +32,15 @@ type BundleConfiguration struct {
 }
 
 type BundleBaseTemplates struct {
-	Repo     string `json:"repo"`
-	Branch   string `json:"branch"`
+	Repo     string           `json:"repo"`
+	Branch   string           `json:"branch"`
 	Stencils []*BundleStencil `json:"stencils"`
 }
 
 type Metadata struct {
-	App         string     `json:"app"`
-	Timestamp   time.Time  `json:"timestamp"`
-	Annotations []string   `json:"annotations"`
+	App         string    `json:"app"`
+	Timestamp   time.Time `json:"timestamp"`
+	Annotations []string  `json:"annotations"`
 }
 
 type BundleStencil struct {
@@ -67,7 +66,7 @@ type BundlePolicy struct {
 	Tags     []string `json:"tags"`
 }
 
-func CreateFormationBundle(formation Formation, app string) *FormationBundle {
+func CreateFormationBundle(formation Formation, app string, configurations []string) *FormationBundle {
 	bundle := &FormationBundle{
 		Version: "1",
 		Metadata: &Metadata{
@@ -75,14 +74,14 @@ func CreateFormationBundle(formation Formation, app string) *FormationBundle {
 			Timestamp:   time.Now().UTC(),
 			Annotations: make([]string, 0), //just a placeholder before creating the real method
 		},
-		Uid:  formation.Uid,
-		Name: formation.Name,
-		Tags: formation.Tags,
-		BaseTemplates: createBaseTemplates(formation),
-		StencilGroups: createStencilGroups(formation.StencilGroups),
-		Policies:      createPolicies(formation.Policies),
-		Configurations: make([]string, 0), //just a placeholder before creating the real method
-		HelmReleases: make([]*BundleHelmRelease, 0), //just a placeholder before creating the real method
+		Uid:            formation.Uid,
+		Name:           formation.Name,
+		Tags:           formation.Tags,
+		BaseTemplates:  createBaseTemplates(formation),
+		StencilGroups:  createStencilGroups(formation.StencilGroups),
+		Policies:       createPolicies(formation.Policies),
+		Configurations: configurations,                            //just a placeholder before creating the real method
+		HelmReleases:   createHelmReleases(formation.HelmReleses), //just a placeholder before creating the real method
 	}
 	return bundle
 }
@@ -92,8 +91,8 @@ func createBaseTemplates(formation Formation) []*BundleBaseTemplates {
 		Repo:     formation.BaseTemplate.GitRepo,
 		Branch:   formation.BaseTemplate.GitBranch,
 		Stencils: createStencils(formation.Stencils),
-		}
-	return append(make([]*BundleBaseTemplates,0), baseTemplate)
+	}
+	return append(make([]*BundleBaseTemplates, 0), baseTemplate)
 }
 
 func createStencils(stencils []Stencil) []*BundleStencil {
@@ -156,5 +155,35 @@ func (b *BundleStencil) AsStencil(bundlePath string) (*Stencil, error) {
 		Tags:             b.Tags,
 		Body:             string(body),
 		Sequence:         b.Sequence,
+	}, nil
+}
+
+func createHelmReleases(helmReleases []HelmRelease) []*BundleHelmRelease {
+	result := make([]*BundleHelmRelease, len(helmReleases))
+	for idx, hr := range helmReleases {
+		result[idx] = &BundleHelmRelease{
+			Name:          hr.Name,
+			Version:       hr.Version,
+			RepositoryURL: hr.RepositoryURL,
+			Values:        hr.Values,
+		}
+	}
+
+	return result
+}
+
+func (b *BundleStencilGroup) AsStencilGroup(bundlePath string) (*StencilGroup, error) {
+	ext := filepath.Ext(b.Name)
+	body, err := ioutil.ReadFile(filepath.Join(bundlePath, "stencil_groups", b.Uid) + ext)
+	if err != nil {
+		return nil, err
+	}
+
+	return &StencilGroup{
+		Uid:      b.Uid,
+		Name:     b.Name,
+		Tags:     b.Tags,
+		Body:     string(body),
+		Sequence: b.Sequence,
 	}, nil
 }
