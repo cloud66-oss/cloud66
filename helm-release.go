@@ -1,8 +1,11 @@
 package cloud66
 
-import "time"
+import (
+	"time"
+)
 
 type HelmRelease struct {
+	Uid           string    `json:"uid"`
 	Name          string    `json:"name"`
 	Version       string    `json:"version"`
 	RepositoryURL string    `json:"repository"`
@@ -17,25 +20,28 @@ func (p HelmRelease) String() string {
 }
 
 func (c *Client) AddHelmReleases(stackUid string, formationUid string, releases []*HelmRelease, message string) ([]HelmRelease, error) {
-	params := struct {
-		Message      string         `json:"message"`
-		HelmReleases []*HelmRelease `json:"helm_releases"`
-	}{
-		Message:      message,
-		HelmReleases: releases,
-	}
+	var releasesRes []HelmRelease = make([]HelmRelease, 0)
+	var singleRes *HelmRelease
+	for _, helmRelease := range releases {
+		params := struct {
+			Message     string       `json:"message"`
+			HelmRelease *HelmRelease `json:"helm_release"`
+		}{
+			Message:     message,
+			HelmRelease: helmRelease,
+		}
+		singleRes = nil
 
-	var releasesRes []HelmRelease
+		req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/formations/"+formationUid+"/helm_releases.json", params, nil)
+		if err != nil {
+			return nil, err
+		}
 
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/formations/"+formationUid+"/helm_releases.json", params, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	releasesRes = nil
-	err = c.DoReq(req, &releasesRes, nil)
-	if err != nil {
-		return nil, err
+		err = c.DoReq(req, &singleRes, nil)
+		if err != nil {
+			return nil, err
+		}
+		releasesRes = append(releasesRes, *singleRes)
 	}
 
 	return releasesRes, nil

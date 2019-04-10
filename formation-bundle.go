@@ -2,6 +2,7 @@ package cloud66
 
 import (
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"time"
 )
@@ -20,6 +21,7 @@ type FormationBundle struct {
 }
 
 type BundleHelmRelease struct {
+	Uid           string `json:"uid"`
 	Name          string `json:"repo"`
 	Version       string `json:"version"`
 	RepositoryURL string `json:"repository_url"`
@@ -32,6 +34,7 @@ type BundleConfiguration struct {
 }
 
 type BundleBaseTemplates struct {
+	Name     string           `json:"name"`
 	Repo     string           `json:"repo"`
 	Branch   string           `json:"branch"`
 	Stencils []*BundleStencil `json:"stencils"`
@@ -63,10 +66,11 @@ type BundlePolicy struct {
 	Uid      string   `json:"uid"`
 	Name     string   `json:"name"`
 	Selector string   `json:"selector"`
+	Sequence int      `json:"sequence"`
 	Tags     []string `json:"tags"`
 }
 
-func CreateFormationBundle(formation Formation, app string, configurations []string) *FormationBundle {
+func CreateFormationBundle(formation Formation, app string) *FormationBundle {
 	bundle := &FormationBundle{
 		Version: "1",
 		Metadata: &Metadata{
@@ -80,7 +84,7 @@ func CreateFormationBundle(formation Formation, app string, configurations []str
 		BaseTemplates:  createBaseTemplates(formation),
 		StencilGroups:  createStencilGroups(formation.StencilGroups),
 		Policies:       createPolicies(formation.Policies),
-		Configurations: configurations,                            //just a placeholder before creating the real method
+		Configurations: make([]string, 0),                         //just a placeholder before creating the real method
 		HelmReleases:   createHelmReleases(formation.HelmReleses), //just a placeholder before creating the real method
 	}
 	return bundle
@@ -132,6 +136,7 @@ func createPolicies(policies []Policy) []*BundlePolicy {
 			Uid:      st.Uid,
 			Name:     st.Name,
 			Selector: st.Selector,
+			Sequence: st.Sequence,
 			Tags:     st.Tags,
 		}
 	}
@@ -140,8 +145,9 @@ func createPolicies(policies []Policy) []*BundlePolicy {
 }
 
 func (b *BundleStencil) AsStencil(bundlePath string) (*Stencil, error) {
-	ext := filepath.Ext(b.Filename)
-	body, err := ioutil.ReadFile(filepath.Join(bundlePath, "stencils", b.Uid) + ext)
+	filePath := filepath.Join(filepath.Join(bundlePath, "stencils"), b.Filename)
+	body, err := ioutil.ReadFile(filePath)
+
 	if err != nil {
 		return nil, err
 	}
@@ -155,6 +161,24 @@ func (b *BundleStencil) AsStencil(bundlePath string) (*Stencil, error) {
 		Tags:             b.Tags,
 		Body:             string(body),
 		Sequence:         b.Sequence,
+	}, nil
+}
+
+func (b *BundlePolicy) AsPolicy(bundlePath string) (*Policy, error) {
+	filePath := filepath.Join(filepath.Join(bundlePath, "policies"), b.Uid+".cop")
+	body, err := ioutil.ReadFile(filePath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Policy{
+		Uid:      b.Uid,
+		Name:     b.Name,
+		Selector: b.Selector,
+		Sequence: b.Sequence,
+		Body:     string(body),
+		Tags:     b.Tags,
 	}, nil
 }
 
@@ -172,6 +196,30 @@ func createHelmReleases(helmReleases []HelmRelease) []*BundleHelmRelease {
 	return result
 }
 
+func (b *BundleHelmRelease) AsRelease(bundlePath string) (*HelmRelease, error) {
+	filePath := filepath.Join(filepath.Join(bundlePath, "helm_releases"), b.Values)
+	_, err := os.Stat(filePath)
+	var body []byte
+	if err != nil {
+		body = nil
+	} else {
+		body, err = ioutil.ReadFile(filePath)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &HelmRelease{
+		Uid:           b.Uid,
+		Name:          b.Name,
+		RepositoryURL: b.RepositoryURL,
+		Version:       b.Version,
+		Values:        b.Values,
+		Body:          string(body),
+	}, nil
+}
+
+/*
 func (b *BundleStencilGroup) AsStencilGroup(bundlePath string) (*StencilGroup, error) {
 	ext := filepath.Ext(b.Name)
 	body, err := ioutil.ReadFile(filepath.Join(bundlePath, "stencil_groups", b.Uid) + ext)
@@ -187,3 +235,4 @@ func (b *BundleStencilGroup) AsStencilGroup(bundlePath string) (*StencilGroup, e
 		Sequence: b.Sequence,
 	}, nil
 }
+*/
