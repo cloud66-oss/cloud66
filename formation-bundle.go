@@ -14,7 +14,6 @@ type FormationBundle struct {
 	Name           string                 `json:"name"`
 	StencilGroups  []*BundleStencilGroup  `json:"stencil_groups"`
 	BaseTemplates  []*BundleBaseTemplates `json:"base_template"`
-	Policies       []*BundlePolicy        `json:"policies"`
 	Tags           []string               `json:"tags"`
 	HelmReleases   []*BundleHelmRelease   `json:"helm_releases"`
 	Configurations []string               `json:"configuration"`
@@ -22,22 +21,20 @@ type FormationBundle struct {
 
 type BundleHelmRelease struct {
 	Uid           string `json:"uid"`
-	Name          string `json:"repo"`
+	ChartName     string `json:"chart_name"`
+	DisplayName   string `json:"display_name"`
 	Version       string `json:"version"`
 	RepositoryURL string `json:"repository_url"`
-	Values        string `json:"values_file"`
-}
-
-type BundleConfiguration struct {
-	Repo   string `json:"repo"`
-	Branch string `json:"branch"`
+	ValuesFile    string `json:"values_file"`
 }
 
 type BundleBaseTemplates struct {
-	Name     string           `json:"name"`
-	Repo     string           `json:"repo"`
-	Branch   string           `json:"branch"`
-	Stencils []*BundleStencil `json:"stencils"`
+	Name         string               `json:"name"`
+	Repo         string               `json:"repo"`
+	Branch       string               `json:"branch"`
+	Stencils     []*BundleStencil     `json:"stencils"`
+	Policies     []*BundlePolicy      `json:"policies"`
+	Transformers []*BundleTransformer `json:"transformers"`
 }
 
 type Metadata struct {
@@ -70,6 +67,12 @@ type BundlePolicy struct {
 	Tags     []string `json:"tags"`
 }
 
+type BundleTransformer struct { // this is just a placeholder for now
+	Uid  string   `json:"uid"`
+	Name string   `json:"name"`
+	Tags []string `json:"tags"`
+}
+
 func CreateFormationBundle(formation Formation, app string, configurations []string) *FormationBundle {
 	bundle := &FormationBundle{
 		Version: "1",
@@ -83,8 +86,7 @@ func CreateFormationBundle(formation Formation, app string, configurations []str
 		Tags:           formation.Tags,
 		BaseTemplates:  createBaseTemplates(formation),
 		StencilGroups:  createStencilGroups(formation.StencilGroups),
-		Policies:       createPolicies(formation.Policies),
-		Configurations: make([]string, 0),                         //just a placeholder before creating the real method
+		Configurations: configurations,
 		HelmReleases:   createHelmReleases(formation.HelmReleses), //just a placeholder before creating the real method
 	}
 	return bundle
@@ -92,9 +94,11 @@ func CreateFormationBundle(formation Formation, app string, configurations []str
 
 func createBaseTemplates(formation Formation) []*BundleBaseTemplates {
 	baseTemplate := &BundleBaseTemplates{
-		Repo:     formation.BaseTemplate.GitRepo,
-		Branch:   formation.BaseTemplate.GitBranch,
-		Stencils: createStencils(formation.Stencils),
+		Repo:         formation.BaseTemplate.GitRepo,
+		Branch:       formation.BaseTemplate.GitBranch,
+		Stencils:     createStencils(formation.Stencils),
+		Policies:     createPolicies(formation.Policies),
+		Transformers: make([]*BundleTransformer, 0),
 	}
 	return append(make([]*BundleBaseTemplates, 0), baseTemplate)
 }
@@ -186,10 +190,11 @@ func createHelmReleases(helmReleases []HelmRelease) []*BundleHelmRelease {
 	result := make([]*BundleHelmRelease, len(helmReleases))
 	for idx, hr := range helmReleases {
 		result[idx] = &BundleHelmRelease{
-			Name:          hr.Name,
+			ChartName:     hr.ChartName,
+			DisplayName:   hr.DisplayName,
 			Version:       hr.Version,
 			RepositoryURL: hr.RepositoryURL,
-			Values:        hr.Values,
+			ValuesFile:    hr.ValuesFile,
 		}
 	}
 
@@ -197,7 +202,7 @@ func createHelmReleases(helmReleases []HelmRelease) []*BundleHelmRelease {
 }
 
 func (b *BundleHelmRelease) AsRelease(bundlePath string) (*HelmRelease, error) {
-	filePath := filepath.Join(filepath.Join(bundlePath, "helm_releases"), b.Values)
+	filePath := filepath.Join(filepath.Join(bundlePath, "helm_releases"), b.ValuesFile)
 	_, err := os.Stat(filePath)
 	var body []byte
 	if err != nil {
@@ -211,10 +216,10 @@ func (b *BundleHelmRelease) AsRelease(bundlePath string) (*HelmRelease, error) {
 
 	return &HelmRelease{
 		Uid:           b.Uid,
-		Name:          b.Name,
+		DisplayName:   b.DisplayName,
 		RepositoryURL: b.RepositoryURL,
 		Version:       b.Version,
-		Values:        b.Values,
+		ValuesFile:    b.ValuesFile,
 		Body:          string(body),
 	}, nil
 }

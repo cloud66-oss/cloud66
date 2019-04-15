@@ -6,17 +6,18 @@ import (
 
 type HelmRelease struct {
 	Uid           string    `json:"uid"`
-	Name          string    `json:"name"`
+	DisplayName   string    `json:"display_name"`
+	ChartName     string    `json:"chart_name"`
 	Version       string    `json:"version"`
 	RepositoryURL string    `json:"repository"`
-	Values        string    `json:"values"`
+	ValuesFile    string    `json:"values_file"`
 	Body          string    `json:"body"`
 	CreatedAt     time.Time `json:"created_at_iso"`
 	UpdatedAt     time.Time `json:"updated_at_iso"`
 }
 
 func (p HelmRelease) String() string {
-	return p.Name
+	return p.DisplayName
 }
 
 func (c *Client) AddHelmReleases(stackUid string, formationUid string, releases []*HelmRelease, message string) ([]HelmRelease, error) {
