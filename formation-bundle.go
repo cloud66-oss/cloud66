@@ -70,7 +70,7 @@ type BundlePolicy struct {
 	Tags     []string `json:"tags"`
 }
 
-func CreateFormationBundle(formation Formation, app string) *FormationBundle {
+func CreateFormationBundle(formation Formation, app string, configurations []string) *FormationBundle {
 	bundle := &FormationBundle{
 		Version: "1",
 		Metadata: &Metadata{
