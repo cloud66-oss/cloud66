@@ -225,20 +225,17 @@ func (b *BundleHelmRelease) AsRelease(bundlePath string) (*HelmRelease, error) {
 	}, nil
 }
 
-/*
 func (b *BundleStencilGroup) AsStencilGroup(bundlePath string) (*StencilGroup, error) {
-	ext := filepath.Ext(b.Name)
+	ext := ".json"
 	body, err := ioutil.ReadFile(filepath.Join(bundlePath, "stencil_groups", b.Uid) + ext)
 	if err != nil {
 		return nil, err
 	}
 
 	return &StencilGroup{
-		Uid:      b.Uid,
-		Name:     b.Name,
-		Tags:     b.Tags,
-		Body:     string(body),
-		Sequence: b.Sequence,
+		Uid:   b.Uid,
+		Name:  b.Name,
+		Tags:  b.Tags,
+		Rules: string(body),
 	}, nil
 }
-*/
