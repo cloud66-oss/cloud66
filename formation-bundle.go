@@ -189,12 +189,13 @@ func (b *BundlePolicy) AsPolicy(bundlePath string) (*Policy, error) {
 func createHelmReleases(helmReleases []HelmRelease) []*BundleHelmRelease {
 	result := make([]*BundleHelmRelease, len(helmReleases))
 	for idx, hr := range helmReleases {
+		filename := hr.ChartName + "-values.yml"
 		result[idx] = &BundleHelmRelease{
 			ChartName:     hr.ChartName,
 			DisplayName:   hr.DisplayName,
 			Version:       hr.Version,
 			RepositoryURL: hr.RepositoryURL,
-			ValuesFile:    hr.ValuesFile,
+			ValuesFile:    filename,
 		}
 	}
 
@@ -216,10 +217,10 @@ func (b *BundleHelmRelease) AsRelease(bundlePath string) (*HelmRelease, error) {
 
 	return &HelmRelease{
 		Uid:           b.Uid,
+		ChartName:     b.ChartName,
 		DisplayName:   b.DisplayName,
 		RepositoryURL: b.RepositoryURL,
 		Version:       b.Version,
-		ValuesFile:    b.ValuesFile,
 		Body:          string(body),
 	}, nil
 }

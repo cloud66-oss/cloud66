@@ -10,7 +10,6 @@ type HelmRelease struct {
 	ChartName     string    `json:"chart_name"`
 	Version       string    `json:"version"`
 	RepositoryURL string    `json:"repository"`
-	ValuesFile    string    `json:"values_file"`
 	Body          string    `json:"body"`
 	CreatedAt     time.Time `json:"created_at_iso"`
 	UpdatedAt     time.Time `json:"updated_at_iso"`
@@ -21,7 +20,7 @@ func (p HelmRelease) String() string {
 }
 
 func (c *Client) AddHelmReleases(stackUid string, formationUid string, releases []*HelmRelease, message string) ([]HelmRelease, error) {
-	var releasesRes []HelmRelease = make([]HelmRelease, 0)
+	var releasesRes = make([]HelmRelease, 0)
 	var singleRes *HelmRelease
 	for _, helmRelease := range releases {
 		params := struct {
