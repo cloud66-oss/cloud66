@@ -203,16 +203,20 @@ func createHelmReleases(helmReleases []HelmRelease) []*BundleHelmRelease {
 }
 
 func (b *BundleHelmRelease) AsRelease(bundlePath string) (*HelmRelease, error) {
-	filePath := filepath.Join(filepath.Join(bundlePath, "helm_releases"), b.ValuesFile)
-	_, err := os.Stat(filePath)
-	var body []byte
-	if err != nil {
-		body = nil
-	} else {
-		body, err = ioutil.ReadFile(filePath)
+	var bodyString string = ""
+	if b.ValuesFile != "" {
+		filePath := filepath.Join(filepath.Join(bundlePath, "helm_releases"), b.ValuesFile)
+		_, err := os.Stat(filePath)
+		var body []byte
 		if err != nil {
-			return nil, err
+			body = nil
+		} else {
+			body, err = ioutil.ReadFile(filePath)
+			if err != nil {
+				return nil, err
+			}
 		}
+		bodyString = string(body)
 	}
 
 	return &HelmRelease{
@@ -221,7 +225,7 @@ func (b *BundleHelmRelease) AsRelease(bundlePath string) (*HelmRelease, error) {
 		DisplayName:   b.DisplayName,
 		RepositoryURL: b.RepositoryURL,
 		Version:       b.Version,
-		Body:          string(body),
+		Body:          bodyString,
 	}, nil
 }
 
