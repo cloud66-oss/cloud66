@@ -94,6 +94,7 @@ func CreateFormationBundle(formation Formation, app string, configurations []str
 
 func createBaseTemplates(formation Formation) []*BundleBaseTemplates {
 	baseTemplate := &BundleBaseTemplates{
+		Name:         formation.BaseTemplate.Name,
 		Repo:         formation.BaseTemplate.GitRepo,
 		Branch:       formation.BaseTemplate.GitBranch,
 		Stencils:     createStencils(formation.Stencils),
