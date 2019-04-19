@@ -317,7 +317,7 @@ func (c *Client) FindStackByName(stackName, environment string) (*Stack, error) 
 	stacks, err := c.StackList()
 
 	for _, b := range stacks {
-		if (strings.ToLower(b.Name) == strings.ToLower(stackName)) && (environment == "" || environment == b.Environment) {
+		if (strings.ToLower(b.Name) == strings.ToLower(stackName)) && (environment == "" || b.Environment == "" || environment == b.Environment) {
 			return &b, err
 		}
 	}
