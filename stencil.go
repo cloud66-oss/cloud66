@@ -35,16 +35,17 @@ func (c *Client) AddStencils(stackUid string, formationUid string, stencils []*S
 
 	var stencilRes []Stencil
 
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/formations/"+formationUid+"/stencils.json", params, nil)
-	if err != nil {
-		return nil, err
-	}
+	if len(stencils) > 0 {
+		req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/formations/"+formationUid+"/stencils.json", params, nil)
+		if err != nil {
+			return nil, err
+		}
 
-	stencilRes = nil
-	err = c.DoReq(req, &stencilRes, nil)
-	if err != nil {
-		return nil, err
+		stencilRes = nil
+		err = c.DoReq(req, &stencilRes, nil)
+		if err != nil {
+			return nil, err
+		}
 	}
-
 	return stencilRes, nil
 }
