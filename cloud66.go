@@ -25,14 +25,6 @@ const (
 	baseURL = "https://app.cloud66.com"
 )
 
-var (
-	defaultUserAgent string
-	baseAPIURL       string
-	defaultAPIURL    string
-	authURL          string
-	tokenURL         string
-)
-
 type GenericResponse struct {
 	Status  bool   `json:"ok"`
 	Message string `json:"message"`
@@ -45,6 +37,12 @@ type Client struct {
 	AccountId         *int
 	Debug             bool
 	AdditionalHeaders http.Header
+
+	defaultUserAgent string
+	baseAPIURL       string
+	defaultAPIURL    string
+	authURL          string
+	tokenURL         string
 }
 
 type Response struct {
@@ -60,17 +58,6 @@ type Pagination struct {
 }
 
 type filterFunction func(item interface{}) bool
-
-func init() {
-	baseAPIURL = os.Getenv("CLOUD66_API_URL")
-	if baseAPIURL == "" {
-		baseAPIURL = baseURL
-	}
-
-	defaultAPIURL = baseAPIURL + "/api/3"
-	authURL = baseAPIURL + "/oauth/authorize"
-	tokenURL = baseAPIURL + "/oauth/token"
-}
 
 func (c *Client) Get(v interface{}, path string, query_strings map[string]string, p *Pagination) error {
 	return c.APIReq(v, "GET", path, nil, query_strings, p)
@@ -123,7 +110,7 @@ func (c *Client) NewRequest(method, path string, body interface{}, query_strings
 	}
 	apiURL := strings.TrimRight(c.URL, "/")
 	if apiURL == "" {
-		apiURL = defaultAPIURL
+		apiURL = c.defaultAPIURL
 	}
 
 	var qs string
@@ -158,7 +145,7 @@ func (c *Client) NewRequest(method, path string, body interface{}, query_strings
 	}
 	useragent := c.UserAgent
 	if useragent == "" {
-		useragent = defaultUserAgent
+		useragent = c.defaultUserAgent
 	}
 	req.Header.Set("User-Agent", useragent)
 	if ctype != "" {
@@ -276,7 +263,7 @@ func checkResp(res *http.Response) error {
 	return nil
 }
 
-func Authorize(tokenDir, tokenFile, clientID, clientSecret, redirectURL, scope string) {
+func (c *Client) Authorize(tokenDir, tokenFile, clientID, clientSecret, redirectURL, scope string) {
 	err := os.MkdirAll(tokenDir, 0777)
 	if err != nil {
 		fmt.Printf("Failed to create directory for the token at %s\n", tokenDir)
@@ -288,8 +275,8 @@ func Authorize(tokenDir, tokenFile, clientID, clientSecret, redirectURL, scope s
 		ClientSecret: clientSecret,
 		RedirectURL:  redirectURL,
 		Scope:        scope,
-		AuthURL:      authURL,
-		TokenURL:     tokenURL,
+		AuthURL:      c.authURL,
+		TokenURL:     c.tokenURL,
 		TokenCache:   oauth.CacheFile(cachefile),
 	}
 	transport := &oauth.Transport{Config: config}
@@ -323,23 +310,30 @@ func Authorize(tokenDir, tokenFile, clientID, clientSecret, redirectURL, scope s
 	}
 }
 
-func GetClient(tokenDir, tokenFile, version, agentPrefix, clientId, clientSecret, redirectURL, scope string) Client {
+func GetClient(baseAPIURL string, tokenDir, tokenFile, version, agentPrefix, clientId, clientSecret, redirectURL, scope string) Client {
+	c := Client{
+		defaultAPIURL: baseAPIURL + "/api/3",
+		authURL:       baseAPIURL + "/oauth/authorize",
+		tokenURL:      baseAPIURL + "/oauth/token",
+	}
+
 	cachefile := filepath.Join(tokenDir, tokenFile)
-	defaultUserAgent = agentPrefix + "/" + version + " (" + runtime.GOOS + "; " + runtime.GOARCH + ")"
+	c.defaultUserAgent = agentPrefix + "/" + version + " (" + runtime.GOOS + "; " + runtime.GOARCH + ")"
 
 	config := &oauth.Config{
 		ClientId:     clientId,
 		ClientSecret: clientSecret,
 		RedirectURL:  redirectURL,
 		Scope:        scope,
-		AuthURL:      authURL,
-		TokenURL:     tokenURL,
+		AuthURL:      c.authURL,
+		TokenURL:     c.tokenURL,
 		TokenCache:   oauth.CacheFile(cachefile),
 	}
 
 	transport := &oauth.Transport{Config: config}
 	token, _ := config.TokenCache.Token()
 	transport.Token = token
+	c.HTTP = transport.Client()
 
-	return Client{HTTP: transport.Client()}
+	return c
 }
