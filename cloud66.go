@@ -2,7 +2,6 @@ package cloud66
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,33 +15,27 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/khash/oauth/oauth"
 	"github.com/pborman/uuid"
+	"github.com/toqueteos/webbrowser"
 )
 
 const (
 	baseURL = "https://app.cloud66.com"
 )
 
+var (
+	defaultUserAgent string
+	baseAPIURL       string
+	defaultAPIURL    string
+	authURL          string
+	tokenURL         string
+)
+
 type GenericResponse struct {
 	Status  bool   `json:"ok"`
 	Message string `json:"message"`
-}
-
-type ClientConfig struct {
-	DefaultUserAgent string
-	AgentPrefix      string
-	BaseAPIURL       string
-	ClientID         string
-	ClientSecret     string
-	RedirectURL      string
-	Scope            string
-
-	defaultAPIURL string
-	authURL       string
-	tokenURL      string
 }
 
 type Client struct {
@@ -52,7 +45,6 @@ type Client struct {
 	AccountId         *int
 	Debug             bool
 	AdditionalHeaders http.Header
-	Config            *ClientConfig
 }
 
 type Response struct {
@@ -68,6 +60,17 @@ type Pagination struct {
 }
 
 type filterFunction func(item interface{}) bool
+
+func init() {
+	baseAPIURL = os.Getenv("CLOUD66_API_URL")
+	if baseAPIURL == "" {
+		baseAPIURL = baseURL
+	}
+
+	defaultAPIURL = baseAPIURL + "/api/3"
+	authURL = baseAPIURL + "/oauth/authorize"
+	tokenURL = baseAPIURL + "/oauth/token"
+}
 
 func (c *Client) Get(v interface{}, path string, query_strings map[string]string, p *Pagination) error {
 	return c.APIReq(v, "GET", path, nil, query_strings, p)
@@ -120,7 +123,7 @@ func (c *Client) NewRequest(method, path string, body interface{}, query_strings
 	}
 	apiURL := strings.TrimRight(c.URL, "/")
 	if apiURL == "" {
-		apiURL = c.Config.defaultAPIURL
+		apiURL = defaultAPIURL
 	}
 
 	var qs string
@@ -155,7 +158,7 @@ func (c *Client) NewRequest(method, path string, body interface{}, query_strings
 	}
 	useragent := c.UserAgent
 	if useragent == "" {
-		useragent = c.Config.DefaultUserAgent
+		useragent = defaultUserAgent
 	}
 	req.Header.Set("User-Agent", useragent)
 	if ctype != "" {
@@ -273,20 +276,7 @@ func checkResp(res *http.Response) error {
 	return nil
 }
 
-func (c *Client) GetAuthorizeURL() string {
-	config := &oauth.Config{
-		ClientId:     c.Config.ClientID,
-		ClientSecret: c.Config.ClientSecret,
-		RedirectURL:  c.Config.RedirectURL,
-		Scope:        c.Config.Scope,
-		AuthURL:      c.Config.authURL,
-		TokenURL:     c.Config.tokenURL,
-	}
-
-	return config.AuthCodeURL("")
-}
-
-func (c *Client) Authorize(tokenDir, tokenFile, token string) {
+func Authorize(tokenDir, tokenFile, clientID, clientSecret, redirectURL, scope string) {
 	err := os.MkdirAll(tokenDir, 0777)
 	if err != nil {
 		fmt.Printf("Failed to create directory for the token at %s\n", tokenDir)
@@ -294,12 +284,12 @@ func (c *Client) Authorize(tokenDir, tokenFile, token string) {
 	cachefile := filepath.Join(tokenDir, tokenFile)
 
 	config := &oauth.Config{
-		ClientId:     c.Config.ClientID,
-		ClientSecret: c.Config.ClientSecret,
-		RedirectURL:  c.Config.RedirectURL,
-		Scope:        c.Config.Scope,
-		AuthURL:      c.Config.authURL,
-		TokenURL:     c.Config.tokenURL,
+		ClientId:     clientID,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectURL,
+		Scope:        scope,
+		AuthURL:      authURL,
+		TokenURL:     tokenURL,
 		TokenCache:   oauth.CacheFile(cachefile),
 	}
 	transport := &oauth.Transport{Config: config}
@@ -307,73 +297,49 @@ func (c *Client) Authorize(tokenDir, tokenFile, token string) {
 
 	// do we already have access?
 	if err != nil {
-		_, err := transport.Exchange(token)
+
+		url := config.AuthCodeURL("")
+		fmt.Printf("Openning %s\n", url)
+		e := webbrowser.Open(url)
+		if e != nil {
+			fmt.Printf("Counldn't open the browser because %s\n", e.Error())
+			fmt.Println("Please open the following URL in your browser and paste the access code here:")
+			fmt.Println(url)
+		} else {
+			fmt.Println("Opening the browser so you can approve the client access")
+		}
+
+		var s string
+		fmt.Println("Authorization Code:")
+		fmt.Scan(&s)
+
+		_, err := transport.Exchange(s)
 		if err != nil {
 			log.Fatal("Exchange:", err)
 		}
 
-		log.Printf("token is cached in %v\n", config.TokenCache)
+		fmt.Printf("Token is cached in %v\n", config.TokenCache)
 		os.Exit(1)
 	}
 }
 
-func GetClient(tokenFile, tokenDir, version string, config *ClientConfig) Client {
-	c := Client{
-		Config: config,
-	}
-
+func GetClient(tokenDir, tokenFile, version, agentPrefix, clientId, clientSecret, redirectURL, scope string) Client {
 	cachefile := filepath.Join(tokenDir, tokenFile)
-	config.DefaultUserAgent = config.AgentPrefix + "/" + version + " (" + runtime.GOOS + "; " + runtime.GOARCH + ")"
+	defaultUserAgent = agentPrefix + "/" + version + " (" + runtime.GOOS + "; " + runtime.GOARCH + ")"
 
-	oauthConfig := &oauth.Config{
-		ClientId:     config.ClientID,
-		ClientSecret: config.ClientSecret,
-		RedirectURL:  config.RedirectURL,
-		Scope:        config.Scope,
-		AuthURL:      config.authURL,
-		TokenURL:     config.tokenURL,
+	config := &oauth.Config{
+		ClientId:     clientId,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectURL,
+		Scope:        scope,
+		AuthURL:      authURL,
+		TokenURL:     tokenURL,
 		TokenCache:   oauth.CacheFile(cachefile),
 	}
 
-	transport := &oauth.Transport{Config: oauthConfig}
-	token, _ := oauthConfig.TokenCache.Token()
+	transport := &oauth.Transport{Config: config}
+	token, _ := config.TokenCache.Token()
 	transport.Token = token
-	c.HTTP = transport.Client()
 
-	return c
-}
-
-func NewClientConfig(baseAPIURL string) *ClientConfig {
-	return &ClientConfig{
-		defaultAPIURL: baseAPIURL + "/api/3",
-		authURL:       baseAPIURL + "/oauth/authorize",
-		tokenURL:      baseAPIURL + "/oauth/token",
-	}
-}
-
-func FetchTokenFromCallback(timeout time.Duration) (string, error) {
-	var token string
-
-	m := http.NewServeMux()
-	srv := &http.Server{Addr: "127.0.0.1:34543", Handler: m}
-	codeCh := make(chan string)
-
-	m.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Authorized. You can close this window now!")
-		codeCh <- r.URL.Query().Get("code")
-	})
-
-	go func() {
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatalf("ListenAndServe(): %s", err)
-		}
-	}()
-
-	select {
-	case code := <-codeCh:
-		srv.Shutdown(context.Background())
-		token = code
-	}
-
-	return token, nil
+	return Client{HTTP: transport.Client()}
 }
