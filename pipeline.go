@@ -10,7 +10,7 @@ type Pipeline struct {
 }
 
 func (c *Client) GetPipeline(stackUid, formationUid string) (*Pipeline, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/formations/"+formationUid+".json", nil, nil)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/formations/"+formationUid+"/pipeline.json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
