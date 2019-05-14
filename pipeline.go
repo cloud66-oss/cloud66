@@ -5,7 +5,7 @@ import (
 )
 
 type WorkflowWrapper struct {
-	Pipeline   json.RawMessage `json:"pipeline"`
+	Workflow   json.RawMessage `json:"pipeline"`
 }
 
 func (c *Client) GetWorkflow(stackUid, formationUid, snapshotUID string) (*WorkflowWrapper, error) {
