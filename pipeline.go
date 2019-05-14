@@ -9,8 +9,13 @@ type Pipeline struct {
 	Steps   json.RawMessage `json:"steps"`
 }
 
-func (c *Client) GetPipeline(stackUid, formationUid string) (*Pipeline, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/formations/"+formationUid+"/pipeline.json", nil, nil)
+func (c *Client) GetPipeline(stackUid, formationUid, snapshotUID string) (*Pipeline, error) {
+	params := struct {
+		SnapshotUID string `json:"snapshot_uid"`
+	}{
+		SnapshotUID: snapshotUID,
+	}
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/formations/"+formationUid+"/pipeline.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
