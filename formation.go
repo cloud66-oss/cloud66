@@ -11,7 +11,7 @@ type Formation struct {
 	Name            string           `json:"name"`
 	Stencils        []Stencil        `json:"stencils"`
 	StencilGroups   []StencilGroup   `json:"stencil_groups"`
-	BaseTemplates   []BaseTemplate   `json:"base_template"`
+	BaseTemplates   []BaseTemplate   `json:"base_templates"`
 	Policies        []Policy         `json:"policies"`
 	Transformations []Transformation `json:"transformations"`
 	HelmReleses     []HelmRelease    `json:"helm_releases"`
