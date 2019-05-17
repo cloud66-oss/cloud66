@@ -68,9 +68,11 @@ type BundlePolicy struct {
 }
 
 type BundleTransformation struct { // this is just a placeholder for now
-	Uid  string   `json:"uid"`
-	Name string   `json:"name"`
-	Tags []string `json:"tags"`
+	Uid      string   `json:"uid"`
+	Name     string   `json:"name"`
+	Selector string   `json:"selector"`
+	Sequence int      `json:"sequence"`
+	Tags     []string `json:"tags"`
 }
 
 func CreateFormationBundle(formation Formation, app string, configurations []string) *FormationBundle {
@@ -86,7 +88,7 @@ func CreateFormationBundle(formation Formation, app string, configurations []str
 		Tags:            formation.Tags,
 		BaseTemplates:   createBaseTemplates(formation),
 		Policies:        createPolicies(formation.Policies),
-		Transformations: make([]*BundleTransformation, 0),
+		Transformations: createTransformations(formation.Transformations),
 		StencilGroups:   createStencilGroups(formation.StencilGroups),
 		Configurations:  configurations,
 		HelmReleases:    createHelmReleases(formation.HelmReleses),
@@ -162,6 +164,21 @@ func createPolicies(policies []Policy) []*BundlePolicy {
 			Selector: st.Selector,
 			Sequence: st.Sequence,
 			Tags:     st.Tags,
+		}
+	}
+
+	return result
+}
+
+func createTransformations(transformations []Transformation) []*BundleTransformation {
+	result := make([]*BundleTransformation, len(transformations))
+	for idx, tr := range transformations {
+		result[idx] = &BundleTransformation{
+			Uid:      tr.Uid,
+			Name:     tr.Name,
+			Selector: tr.Selector,
+			Sequence: tr.Sequence,
+			Tags:     tr.Tags,
 		}
 	}
 
