@@ -7,16 +7,17 @@ import (
 )
 
 type Formation struct {
-	Uid           string         `json:"uid"`
-	Name          string         `json:"name"`
-	Stencils      []Stencil      `json:"stencils"`
-	StencilGroups []StencilGroup `json:"stencil_groups"`
-	BaseTemplates []BaseTemplate `json:"base_template"`
-	Policies      []Policy       `json:"policies"`
-	HelmReleses   []HelmRelease  `json:"helm_releases"`
-	CreatedAt     time.Time      `json:"created_at_iso"`
-	UpdatedAt     time.Time      `json:"updated_at_iso"`
-	Tags          []string       `json:"tags"`
+	Uid             string           `json:"uid"`
+	Name            string           `json:"name"`
+	Stencils        []Stencil        `json:"stencils"`
+	StencilGroups   []StencilGroup   `json:"stencil_groups"`
+	BaseTemplates   []BaseTemplate   `json:"base_template"`
+	Policies        []Policy         `json:"policies"`
+	Transformations []Transformation `json:"transformations"`
+	HelmReleses     []HelmRelease    `json:"helm_releases"`
+	CreatedAt       time.Time        `json:"created_at_iso"`
+	UpdatedAt       time.Time        `json:"updated_at_iso"`
+	Tags            []string         `json:"tags"`
 }
 
 func (c *Client) Formations(stackUid string, fullContent bool) ([]Formation, error) {
