@@ -7,12 +7,13 @@ import (
 )
 
 var baseTemplateStatus = map[int]string{
-	1: "Unknown",                             // ST_UNKNOWN
-	2: "Queued to be pulled and verified",    // ST_QUEUED
-	3: "Pulling repository",                  // ST_PULLING
-	4: "Verifying repository",                // ST_VERIFYING
-	5: "Failed to pull or verify repository", // ST_ERROR
-	6: "Available",                           // ST_AVAILABLE
+	1: "Unknown",                          // ST_UNKNOWN
+	2: "Queued to be pulled and verified", // ST_QUEUED
+	3: "Pulling repository",               // ST_PULLING
+	4: "Verifying repository",             // ST_VERIFYING
+	5: "Failed to pull the repository",    // ST_CONNECTION_ERROR
+	6: "Available",                        // ST_AVAILABLE
+	7: "Failed to pull the repository",    // ST_VERIFICATION_ERROR
 }
 
 type BaseTemplate struct {

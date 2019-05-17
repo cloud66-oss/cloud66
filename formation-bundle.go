@@ -8,15 +8,17 @@ import (
 )
 
 type FormationBundle struct {
-	Version        string                 `json:"version"`
-	Metadata       *Metadata              `json:"metadata"`
-	Uid            string                 `json:"uid"`
-	Name           string                 `json:"name"`
-	StencilGroups  []*BundleStencilGroup  `json:"stencil_groups"`
-	BaseTemplates  []*BundleBaseTemplates `json:"base_template"`
-	Tags           []string               `json:"tags"`
-	HelmReleases   []*BundleHelmRelease   `json:"helm_releases"`
-	Configurations []string               `json:"configuration"`
+	Version         string                  `json:"version"`
+	Metadata        *Metadata               `json:"metadata"`
+	Uid             string                  `json:"uid"`
+	Name            string                  `json:"name"`
+	StencilGroups   []*BundleStencilGroup   `json:"stencil_groups"`
+	BaseTemplates   []*BundleBaseTemplates  `json:"base_template"`
+	Policies        []*BundlePolicy         `json:"policies"`
+	Transformations []*BundleTransformation `json:"transformations"`
+	Tags            []string                `json:"tags"`
+	HelmReleases    []*BundleHelmRelease    `json:"helm_releases"`
+	Configurations  []string                `json:"configuration"`
 }
 
 type BundleHelmRelease struct {
@@ -29,12 +31,10 @@ type BundleHelmRelease struct {
 }
 
 type BundleBaseTemplates struct {
-	Name         string               `json:"name"`
-	Repo         string               `json:"repo"`
-	Branch       string               `json:"branch"`
-	Stencils     []*BundleStencil     `json:"stencils"`
-	Policies     []*BundlePolicy      `json:"policies"`
-	Transformers []*BundleTransformer `json:"transformers"`
+	Name     string           `json:"name"`
+	Repo     string           `json:"repo"`
+	Branch   string           `json:"branch"`
+	Stencils []*BundleStencil `json:"stencils"`
 }
 
 type Metadata struct {
@@ -67,7 +67,7 @@ type BundlePolicy struct {
 	Tags     []string `json:"tags"`
 }
 
-type BundleTransformer struct { // this is just a placeholder for now
+type BundleTransformation struct { // this is just a placeholder for now
 	Uid  string   `json:"uid"`
 	Name string   `json:"name"`
 	Tags []string `json:"tags"`
@@ -81,44 +81,63 @@ func CreateFormationBundle(formation Formation, app string, configurations []str
 			Timestamp:   time.Now().UTC(),
 			Annotations: make([]string, 0), //just a placeholder before creating the real method
 		},
-		Uid:            formation.Uid,
-		Name:           formation.Name,
-		Tags:           formation.Tags,
-		BaseTemplates:  createBaseTemplates(formation),
-		StencilGroups:  createStencilGroups(formation.StencilGroups),
-		Configurations: configurations,
-		HelmReleases:   createHelmReleases(formation.HelmReleses), //just a placeholder before creating the real method
+		Uid:             formation.Uid,
+		Name:            formation.Name,
+		Tags:            formation.Tags,
+		BaseTemplates:   createBaseTemplates(formation),
+		Policies:        createPolicies(formation.Policies),
+		Transformations: make([]*BundleTransformation, 0),
+		StencilGroups:   createStencilGroups(formation.StencilGroups),
+		Configurations:  configurations,
+		HelmReleases:    createHelmReleases(formation.HelmReleses),
 	}
 	return bundle
 }
 
 func createBaseTemplates(formation Formation) []*BundleBaseTemplates {
-	baseTemplate := &BundleBaseTemplates{
-		Name:         formation.BaseTemplate.Name,
-		Repo:         formation.BaseTemplate.GitRepo,
-		Branch:       formation.BaseTemplate.GitBranch,
-		Stencils:     createStencils(formation.Stencils),
-		Policies:     createPolicies(formation.Policies),
-		Transformers: make([]*BundleTransformer, 0),
-	}
-	return append(make([]*BundleBaseTemplates, 0), baseTemplate)
-}
-
-func createStencils(stencils []Stencil) []*BundleStencil {
-	result := make([]*BundleStencil, len(stencils))
-	for idx, st := range stencils {
-		result[idx] = &BundleStencil{
-			Uid:              st.Uid,
-			Filename:         st.Filename,
-			ContextID:        st.ContextID,
-			TemplateFilename: st.TemplateFilename,
-			Status:           st.Status,
-			Tags:             st.Tags,
-			Sequence:         st.Sequence,
+	baseTemplates := make([]*BundleBaseTemplates, 0)
+	for _, stencil := range formation.Stencils {
+		index := findIndexByRepoAndBranch(baseTemplates, stencil.BtrRepo, stencil.BtrBranch)
+		if index == -1 {
+			btrIndex := formation.FindIndexByRepoAndBranch(stencil.BtrRepo, stencil.BtrBranch)
+			baseTemplates = append(baseTemplates, &BundleBaseTemplates{
+				Name:     formation.BaseTemplates[btrIndex].Name,
+				Repo:     formation.BaseTemplates[btrIndex].GitRepo,
+				Branch:   formation.BaseTemplates[btrIndex].GitBranch,
+				Stencils: createStencils(stencil),
+			})
+		} else {
+			baseTemplates[index].Stencils = append(baseTemplates[index].Stencils, createStencil(stencil))
 		}
 	}
+	return baseTemplates
+}
+
+func createStencils(stencil Stencil) []*BundleStencil {
+	result := make([]*BundleStencil, 0)
+	result = append(result, &BundleStencil{
+		Uid:              stencil.Uid,
+		Filename:         stencil.Filename,
+		ContextID:        stencil.ContextID,
+		TemplateFilename: stencil.TemplateFilename,
+		Status:           stencil.Status,
+		Tags:             stencil.Tags,
+		Sequence:         stencil.Sequence,
+	})
 
 	return result
+}
+
+func createStencil(stencil Stencil) *BundleStencil {
+	return &BundleStencil{
+		Uid:              stencil.Uid,
+		Filename:         stencil.Filename,
+		ContextID:        stencil.ContextID,
+		TemplateFilename: stencil.TemplateFilename,
+		Status:           stencil.Status,
+		Tags:             stencil.Tags,
+		Sequence:         stencil.Sequence,
+	}
 }
 
 func createStencilGroups(stencilGroups []StencilGroup) []*BundleStencilGroup {
@@ -243,4 +262,13 @@ func (b *BundleStencilGroup) AsStencilGroup(bundlePath string) (*StencilGroup, e
 		Tags:  b.Tags,
 		Rules: string(body),
 	}, nil
+}
+
+func findIndexByRepoAndBranch(base_templates []*BundleBaseTemplates, repo string, branch string) int {
+	for index, btr := range base_templates {
+		if btr.Repo == repo && btr.Branch == branch {
+			return index
+		}
+	}
+	return -1
 }

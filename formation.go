@@ -11,7 +11,7 @@ type Formation struct {
 	Name          string         `json:"name"`
 	Stencils      []Stencil      `json:"stencils"`
 	StencilGroups []StencilGroup `json:"stencil_groups"`
-	BaseTemplate  BaseTemplate   `json:"base_template"`
+	BaseTemplates []BaseTemplate `json:"base_template"`
 	Policies      []Policy       `json:"policies"`
 	HelmReleses   []HelmRelease  `json:"helm_releases"`
 	CreatedAt     time.Time      `json:"created_at_iso"`
@@ -84,4 +84,50 @@ func (c *Client) CreateFormation(stackUid string, name string, templateRepo stri
 	}
 
 	return formationRes, nil
+}
+
+func (c *Client) CreateFormationMultiBtr(stackUid string, name string, baseTemplates []*BaseTemplate, tags []string) (*Formation, error) {
+	type base struct {
+		Repo   string `json:"repo"`
+		Branch string `json:"branch"`
+	}
+
+	params := struct {
+		Base []base   `json:"base_templates"`
+		Name string   `json:"name"`
+		Tags []string `json:"tags"`
+	}{
+		Name: name,
+		Tags: tags,
+	}
+	baseList := make([]base, 0)
+	for _, value := range baseTemplates {
+		baseList = append(baseList, base{
+			Repo:   value.GitRepo,
+			Branch: value.GitBranch,
+		})
+	}
+
+	params.Base = baseList
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/formations.json", params, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var formationRes *Formation
+	err = c.DoReq(req, &formationRes, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return formationRes, nil
+}
+
+func (f *Formation) FindIndexByRepoAndBranch(repo string, branch string) int {
+	for index, btr := range f.BaseTemplates {
+		if btr.GitRepo == repo && btr.GitBranch == branch {
+			return index
+		}
+	}
+	return -1
 }
