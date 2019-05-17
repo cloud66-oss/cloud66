@@ -4,16 +4,22 @@ import (
 	"encoding/json"
 )
 
-type Pipeline struct {
-	Version string          `json:"version"`
-	Steps   json.RawMessage `json:"steps"`
+type WorkflowWrapper struct {
+	Workflow json.RawMessage `json:"pipeline"`
 }
 
-func (c *Client) GetPipeline(stackUid, formationUid string) (*Pipeline, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/formations/"+formationUid+".json", nil, nil)
+func (c *Client) GetWorkflow(stackUid, formationUid, snapshotUID string, useLatest bool) (*WorkflowWrapper, error) {
+	params := struct {
+		SnapshotUID string `json:"snapshot_uid"`
+		UseLatest   bool   `json:"use_latest"`
+	}{
+		SnapshotUID: snapshotUID,
+		UseLatest:   useLatest,
+	}
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/formations/"+formationUid+"/pipeline.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
-	var pipelineRes *Pipeline
-	return pipelineRes, c.DoReq(req, &pipelineRes, nil)
+	var workflowWrapper *WorkflowWrapper
+	return workflowWrapper, c.DoReq(req, &workflowWrapper, nil)
 }
