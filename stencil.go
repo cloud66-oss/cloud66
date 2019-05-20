@@ -13,7 +13,7 @@ type Stencil struct {
 	GitfilePath      string    `json:"gitfile_path"`
 	Body             string    `json:"body"`
 	BtrRepo          string    `json:"btr_repo"`
-	BtrBranch        string    `json:"branch"`
+	BtrBranch        string    `json:"btr_branch"`
 	Sequence         int       `json:"sequence"`
 	CreatedAt        time.Time `json:"created_at_iso"`
 	UpdatedAt        time.Time `json:"updated_at_iso"`
