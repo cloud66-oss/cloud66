@@ -226,7 +226,7 @@ func (b *BundlePolicy) AsPolicy(bundlePath string) (*Policy, error) {
 func createHelmReleases(helmReleases []HelmRelease) []*BundleHelmRelease {
 	result := make([]*BundleHelmRelease, len(helmReleases))
 	for idx, hr := range helmReleases {
-		filename := hr.ChartName + "-values.yml"
+		filename := hr.DisplayName + "-values.yml"
 		result[idx] = &BundleHelmRelease{
 			ChartName:     hr.ChartName,
 			DisplayName:   hr.DisplayName,
