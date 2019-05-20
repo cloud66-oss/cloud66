@@ -91,7 +91,7 @@ func CreateFormationBundle(formation Formation, app string, configurations []str
 		Transformations: createTransformations(formation.Transformations),
 		StencilGroups:   createStencilGroups(formation.StencilGroups),
 		Configurations:  configurations,
-		HelmReleases:    createHelmReleases(formation.HelmReleses),
+		HelmReleases:    createHelmReleases(formation.HelmReleases),
 	}
 	return bundle
 }
