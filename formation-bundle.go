@@ -287,7 +287,6 @@ func (b *BundleHelmRelease) AsRelease(bundlePath string) (*HelmRelease, error) {
 func (b *BundleStencilGroup) AsStencilGroup(bundlePath string) (*StencilGroup, error) {
 	ext := ".json"
 	body, err := ioutil.ReadFile(filepath.Join(bundlePath, "stencil_groups", b.Uid) + ext)
-
 	if err != nil {
 		return nil, err
 	}
