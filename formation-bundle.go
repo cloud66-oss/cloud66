@@ -223,6 +223,24 @@ func (b *BundlePolicy) AsPolicy(bundlePath string) (*Policy, error) {
 	}, nil
 }
 
+func (b *BundleTransformation) AsTransformation(bundlePath string) (*Transformation, error) {
+	filePath := filepath.Join(filepath.Join(bundlePath, "transformations"), b.Uid+".js")
+	body, err := ioutil.ReadFile(filePath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Transformation{
+		Uid:      b.Uid,
+		Name:     b.Name,
+		Selector: b.Selector,
+		Sequence: b.Sequence,
+		Body:     string(body),
+		Tags:     b.Tags,
+	}, nil
+}
+
 func createHelmReleases(helmReleases []HelmRelease) []*BundleHelmRelease {
 	result := make([]*BundleHelmRelease, len(helmReleases))
 	for idx, hr := range helmReleases {
