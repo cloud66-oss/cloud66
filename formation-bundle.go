@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -300,8 +301,10 @@ func (b *BundleStencilGroup) AsStencilGroup(bundlePath string) (*StencilGroup, e
 }
 
 func findIndexByRepoAndBranch(base_templates []*BundleBaseTemplates, repo string, branch string) int {
+	repo = strings.TrimSpace(repo)
+	branch = strings.TrimSpace(branch)
 	for index, btr := range base_templates {
-		if btr.Repo == repo && btr.Branch == branch {
+		if strings.TrimSpace(btr.Repo) == repo && strings.TrimSpace(btr.Branch) == branch {
 			return index
 		}
 	}

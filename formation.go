@@ -3,6 +3,7 @@ package cloud66
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -125,8 +126,10 @@ func (c *Client) CreateFormationMultiBtr(stackUid string, name string, baseTempl
 }
 
 func (f *Formation) FindIndexByRepoAndBranch(repo string, branch string) int {
+	repo = strings.TrimSpace(repo)
+	branch = strings.TrimSpace(branch)
 	for index, btr := range f.BaseTemplates {
-		if btr.GitRepo == repo && btr.GitBranch == branch {
+		if strings.TrimSpace(btr.GitRepo) == repo && strings.TrimSpace(btr.GitBranch) == branch {
 			return index
 		}
 	}
