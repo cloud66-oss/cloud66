@@ -13,7 +13,7 @@ var baseTemplateStatus = map[int]string{
 	4: "Verifying repository",             // ST_VERIFYING
 	5: "Failed to pull the repository",    // ST_CONNECTION_ERROR
 	6: "Available",                        // ST_AVAILABLE
-	7: "Failed to pull the repository",    // ST_VERIFICATION_ERROR
+	7: "Failed to verify the repository",  // ST_VERIFICATION_ERROR
 }
 
 type BaseTemplate struct {
