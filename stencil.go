@@ -79,3 +79,29 @@ func (c *Client) RenderStencil(stackUID, snapshotUID, formationUID, stencilUID s
 
 	return result, nil
 }
+
+func (c *Client) UpdateStencil(stackUID, formationUID, stencilUID, message string, body []byte) (*Stencil, error) {
+	encoded := base64.StdEncoding.EncodeToString(body)
+	params := struct {
+		Body    string `json:"body"`
+		Message string `json:"message"`
+	}{
+		Message: message,
+		Body:    encoded,
+	}
+
+	var result *Stencil
+	req, err := c.NewRequest("PUT", "/stacks/"+stackUID+"/formations/"+formationUID+"/stencils/"+stencilUID+".json", params, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	result = nil
+	err = c.DoReq(req, &result, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

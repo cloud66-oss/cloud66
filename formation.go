@@ -21,6 +21,16 @@ type Formation struct {
 	Tags            []string         `json:"tags"`
 }
 
+func (f *Formation) FindStencil(stencilName string) *Stencil {
+	for _, stencil := range f.Stencils {
+		if stencil.Filename == stencilName {
+			return &stencil
+		}
+	}
+
+	return nil
+}
+
 func (c *Client) Formations(stackUid string, fullContent bool) ([]Formation, error) {
 	query_strings := make(map[string]string)
 	query_strings["page"] = "1"
