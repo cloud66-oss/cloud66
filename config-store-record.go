@@ -1,7 +1,7 @@
 package cloud66
 
 type ConfigStoreRecords struct {
-	Records []*ConfigStoreRecord `json:"records" yaml:"records"`
+	Records []ConfigStoreRecord `json:"records" yaml:"records"`
 }
 
 type ConfigStoreRecord struct {
