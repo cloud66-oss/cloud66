@@ -7,12 +7,17 @@ import (
 )
 
 const (
-	ConfigStoreAccountScope = "account"
-	ConfigStoreStackScope   = "stack"
+	BundledConfigStoreAccountScope = "account"
+	BundledConfigStoreStackScope   = "stack"
 )
 
-type ConfigStoreRecords struct {
-	Records []ConfigStoreRecord `json:"records" yaml:"records"`
+type BundledConfigStoreRecords struct {
+	Records []BundledConfigStoreRecord `json:"records" yaml:"records"`
+}
+
+type BundledConfigStoreRecord struct {
+	ConfigStoreRecord
+	Scope string `json:"scope" yaml:"scope"`
 }
 
 type ConfigStoreRecord struct {
@@ -20,11 +25,6 @@ type ConfigStoreRecord struct {
 	RawValue string            `json:"raw_value" yaml:"raw_value"`
 	Metadata map[string]string `json:"metadata" yaml:"metadata"`
 	Ttl      int               `json:"ttl" yaml:"ttl"`
-}
-
-type BundledConfigStoreRecord struct {
-	ConfigStoreRecord
-	Scope string `json:"scope" yaml:"scope"`
 }
 
 type configStoreRequestWrapper struct {
