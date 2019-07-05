@@ -20,6 +20,7 @@ type FormationBundle struct {
 	Tags            []string                `json:"tags"`
 	HelmReleases    []*BundleHelmRelease    `json:"helm_releases"`
 	Configurations  []string                `json:"configuration"`
+	ConfigStore     []string                `json:"configstore"`
 }
 
 type BundleHelmRelease struct {
