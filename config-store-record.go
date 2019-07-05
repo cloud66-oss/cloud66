@@ -52,7 +52,7 @@ func (c *Client) GetConfigStoreRecords(namespace string) ([]ConfigStoreRecord, e
 }
 
 func (c *Client) GetConfigStoreRecord(namespace, key string) (*ConfigStoreRecord, error) {
-	req, err := c.NewRequest("GET", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedPath(key)+".json", nil, nil)
+	req, err := c.NewRequest("GET", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedPath(key), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (c *Client) CreateConfigStoreRecord(namespace string, record *ConfigStoreRe
 }
 
 func (c *Client) UpdateConfigStoreRecord(namespace, key string, record *ConfigStoreRecord) (*ConfigStoreRecord, error) {
-	req, err := c.NewRequest("PUT", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedPath(key)+".json", &configStoreRequestWrapper{Record: record}, nil)
+	req, err := c.NewRequest("PUT", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedPath(key), &configStoreRequestWrapper{Record: record}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (c *Client) UpdateConfigStoreRecord(namespace, key string, record *ConfigSt
 }
 
 func (c *Client) DeleteConfigStoreRecord(namespace, key string) (*ConfigStoreRecord, error) {
-	req, err := c.NewRequest("DELETE", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedPath(key)+".json", nil, nil)
+	req, err := c.NewRequest("DELETE", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedPath(key), nil, nil)
 	if err != nil {
 		return nil, err
 	}
