@@ -16,6 +16,10 @@ type ConfigStoreRecord struct {
 	Ttl      int               `json:"ttl" yaml:"ttl"`
 }
 
+type configStoreRequestWrapper struct {
+	Record *ConfigStoreRecord `json:"record" yaml:"record"`
+}
+
 func (c *Client) GetConfigStoreRecords(namespace string) ([]ConfigStoreRecord, error) {
 	var p Pagination
 	var result []ConfigStoreRecord
@@ -63,7 +67,7 @@ func (c *Client) GetConfigStoreRecord(namespace, key string) (*ConfigStoreRecord
 }
 
 func (c *Client) CreateConfigStoreRecord(namespace string, record *ConfigStoreRecord) (*ConfigStoreRecord, error) {
-	req, err := c.NewRequest("POST", "/configstore/namespaces/"+namespace+"/records.json", record, nil)
+	req, err := c.NewRequest("POST", "/configstore/namespaces/"+namespace+"/records.json", &configStoreRequestWrapper{Record: record}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +82,7 @@ func (c *Client) CreateConfigStoreRecord(namespace string, record *ConfigStoreRe
 }
 
 func (c *Client) UpdateConfigStoreRecord(namespace, key string, record *ConfigStoreRecord) (*ConfigStoreRecord, error) {
-	req, err := c.NewRequest("PUT", "/configstore/namespaces/"+namespace+"/records/"+url.QueryEscape(key)+".json", record, nil)
+	req, err := c.NewRequest("PUT", "/configstore/namespaces/"+namespace+"/records/"+url.QueryEscape(key)+".json", &configStoreRequestWrapper{Record: record}, nil)
 	if err != nil {
 		return nil, err
 	}
