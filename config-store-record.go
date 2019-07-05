@@ -6,6 +6,11 @@ import (
 	"strings"
 )
 
+const (
+	ConfigStoreAccountScope = "account"
+	ConfigStoreStackScope   = "stack"
+)
+
 type ConfigStoreRecords struct {
 	Records []ConfigStoreRecord `json:"records" yaml:"records"`
 }
