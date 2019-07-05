@@ -3,6 +3,7 @@ package cloud66
 import (
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type ConfigStoreRecords struct {
@@ -52,7 +53,7 @@ func (c *Client) GetConfigStoreRecords(namespace string) ([]ConfigStoreRecord, e
 }
 
 func (c *Client) GetConfigStoreRecord(namespace, key string) (*ConfigStoreRecord, error) {
-	req, err := c.NewRequest("GET", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedPath(key), nil, nil)
+	req, err := c.NewRequest("GET", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedKey(key)+".json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +83,7 @@ func (c *Client) CreateConfigStoreRecord(namespace string, record *ConfigStoreRe
 }
 
 func (c *Client) UpdateConfigStoreRecord(namespace, key string, record *ConfigStoreRecord) (*ConfigStoreRecord, error) {
-	req, err := c.NewRequest("PUT", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedPath(key), &configStoreRequestWrapper{Record: record}, nil)
+	req, err := c.NewRequest("PUT", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedKey(key)+".json", &configStoreRequestWrapper{Record: record}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +98,7 @@ func (c *Client) UpdateConfigStoreRecord(namespace, key string, record *ConfigSt
 }
 
 func (c *Client) DeleteConfigStoreRecord(namespace, key string) (*ConfigStoreRecord, error) {
-	req, err := c.NewRequest("DELETE", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedPath(key), nil, nil)
+	req, err := c.NewRequest("DELETE", "/configstore/namespaces/"+namespace+"/records/"+urlEncodedKey(key)+".json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +112,8 @@ func (c *Client) DeleteConfigStoreRecord(namespace, key string) (*ConfigStoreRec
 	return result, nil
 }
 
-func urlEncodedPath(path string) string {
-	t := &url.URL{Path: path}
-	return t.String()
+func urlEncodedKey(key string) string {
+	result := url.QueryEscape(key)
+	result = strings.ReplaceAll(result, ".", "%2E")
+	return result
 }
