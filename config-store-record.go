@@ -16,8 +16,8 @@ type BundledConfigStoreRecords struct {
 }
 
 type BundledConfigStoreRecord struct {
-	ConfigStoreRecord
-	Scope string `json:"scope" yaml:"scope"`
+	ConfigStoreRecord `yaml:"inline"`
+	Scope             string `json:"scope" yaml:"scope"`
 }
 
 type ConfigStoreRecord struct {
