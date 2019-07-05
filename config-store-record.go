@@ -17,6 +17,11 @@ type ConfigStoreRecord struct {
 	Ttl      int               `json:"ttl" yaml:"ttl"`
 }
 
+type BundledConfigStoreRecord struct {
+	ConfigStoreRecord
+	Scope string `json:"scope" yaml:"scope"`
+}
+
 type configStoreRequestWrapper struct {
 	Record *ConfigStoreRecord `json:"record" yaml:"record"`
 }
