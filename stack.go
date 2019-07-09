@@ -49,7 +49,7 @@ type Stack struct {
 	Version              string     `json:"version"`
 	Revision             string     `json:"revision"`
 	Namespaces           []string   `json:"namespaces"`
-	AccountID            int        `json:"account_id"`
+	AccountId            int        `json:"account_id"`
 	AccountName          string     `json:"account_name"`
 	IsCluster            bool       `json:"is_cluster"`
 	IsInsideCluster      bool       `json:"is_inside_cluster"`
