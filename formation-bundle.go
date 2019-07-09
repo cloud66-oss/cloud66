@@ -77,7 +77,7 @@ type BundleTransformation struct { // this is just a placeholder for now
 	Tags     []string `json:"tags"`
 }
 
-func CreateFormationBundle(formation Formation, app string, configurations []string) *FormationBundle {
+func CreateFormationBundle(formation Formation, app string, configurations []string, configstore []string) *FormationBundle {
 	bundle := &FormationBundle{
 		Version: "1",
 		Metadata: &Metadata{
@@ -94,6 +94,7 @@ func CreateFormationBundle(formation Formation, app string, configurations []str
 		StencilGroups:   createStencilGroups(formation.StencilGroups),
 		Configurations:  configurations,
 		HelmReleases:    createHelmReleases(formation.HelmReleases),
+		ConfigStore:     configstore,
 	}
 	return bundle
 }
