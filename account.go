@@ -13,16 +13,17 @@ type UnmanagedServer struct {
 }
 
 type Account struct {
-	Id                 int               `json:"id"`
-	Owner              string            `json:"owner"`
-	Name               string            `json:"friendly_name"`
-	StackCount         int               `json:"stack_count"`
-	UsedClouds         []string          `json:"used_clouds"`
-	CreatedAt          time.Time         `json:"created_at"`
-	UpdatedAt          time.Time         `json:"updated_at"`
-	CurrentAccount     bool              `json:"current_account"`
-	UnmanagedServers   []UnmanagedServer `json:"unmanaged_servers"`
-	ServerRegistration string            `json:"server_registration_script"`
+	Id                   int               `json:"id"`
+	Owner                string            `json:"owner"`
+	Name                 string            `json:"friendly_name"`
+	StackCount           int               `json:"stack_count"`
+	UsedClouds           []string          `json:"used_clouds"`
+	CreatedAt            time.Time         `json:"created_at"`
+	UpdatedAt            time.Time         `json:"updated_at"`
+	CurrentAccount       bool              `json:"current_account"`
+	UnmanagedServers     []UnmanagedServer `json:"unmanaged_servers"`
+	ServerRegistration   string            `json:"server_registration_script"`
+	ConfigStoreNamespace string            `json:"configstore_namespace"`
 }
 
 type OTP struct {

@@ -36,7 +36,7 @@ type Renders struct {
 	Stencils       StencilRenderList `json:"stencils"`
 	Issues         []RenderIssue     `json:"issues"`
 	RequestedFiles []string          `json:"requested_files"`
-	StencilGroup   string            `json:"stencil_group`
+	StencilGroup   string            `json:"stencil_group"`
 }
 
 func (r *Renders) Errors() []RenderIssue {
@@ -60,7 +60,6 @@ func (r *Renders) Warnings() []RenderIssue {
 
 	return foundErrors
 }
-
 
 func (c *Client) Snapshots(stackUid string) ([]Snapshot, error) {
 	query_strings := make(map[string]string)
