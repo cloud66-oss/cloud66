@@ -22,7 +22,7 @@ func (c *Client) AddWorkflow(stackUid string, formationUid string, workflow *Wor
 
 	params := struct {
 		Message  string    `json:"message"`
-		Workflow *Workflow `json:"policy"`
+		Workflow *Workflow `json:"workflow"`
 	}{
 		Message:  message,
 		Workflow: workflow,
