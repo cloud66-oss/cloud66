@@ -17,7 +17,7 @@ type FormationBundle struct {
 	BaseTemplates   []*BundleBaseTemplates  `json:"base_templates"`
 	Policies        []*BundlePolicy         `json:"policies"`
 	Transformations []*BundleTransformation `json:"transformations"`
-	Workflow        *BundleWorkflow         `json:"workflow"`
+	Workflows       []*BundleWorkflow       `json:"workflows"`
 	Tags            []string                `json:"tags"`
 	HelmReleases    []*BundleHelmRelease    `json:"helm_releases"`
 	Configurations  []string                `json:"configuration"`
@@ -99,7 +99,7 @@ func CreateFormationBundle(formation Formation, app string, configurations []str
 		Policies:        createPolicies(formation.Policies),
 		Transformations: createTransformations(formation.Transformations),
 		StencilGroups:   createStencilGroups(formation.StencilGroups),
-		Workflow:        createWorkflow(formation.Workflow),
+		Workflows:       createWorkflows(formation.Workflows),
 		Configurations:  configurations,
 		HelmReleases:    createHelmReleases(formation.HelmReleases),
 		ConfigStore:     configstore,
@@ -181,14 +181,14 @@ func createPolicies(policies []Policy) []*BundlePolicy {
 	return result
 }
 
-func createWorkflow(wf *Workflow) *BundleWorkflow {
-	if wf == nil {
-		return nil
-	}
-	result := &BundleWorkflow{
-		Uid:  wf.Uid,
-		Name: wf.Name,
-		Tags: wf.Tags,
+func createWorkflows(workflows []Workflow) []*BundleWorkflow {
+	result := make([]*BundleWorkflow, len(workflows))
+	for idx, st := range workflows {
+		result[idx] = &BundleWorkflow{
+			Uid:  st.Uid,
+			Name: st.Name,
+			Tags: st.Tags,
+		}
 	}
 
 	return result
