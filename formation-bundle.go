@@ -258,10 +258,11 @@ func (b *BundleWorkflow) AsWorkflow(bundlePath string) (*Workflow, error) {
 	}
 
 	return &Workflow{
-		Uid:  b.Uid,
-		Name: b.Name,
-		Body: string(body),
-		Tags: b.Tags,
+		Uid:     b.Uid,
+		Name:    b.Name,
+		Default: b.Default,
+		Body:    string(body),
+		Tags:    b.Tags,
 	}, nil
 }
 
