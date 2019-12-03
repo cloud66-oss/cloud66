@@ -250,7 +250,7 @@ func (b *BundlePolicy) AsPolicy(bundlePath string) (*Policy, error) {
 }
 
 func (b *BundleWorkflow) AsWorkflow(bundlePath string) (*Workflow, error) {
-	filePath := filepath.Join(filepath.Join(bundlePath, "workflow"), b.Name)
+	filePath := filepath.Join(filepath.Join(bundlePath, "workflows"), b.Name)
 	body, err := ioutil.ReadFile(filePath)
 
 	if err != nil {
