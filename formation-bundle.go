@@ -13,7 +13,6 @@ type FormationBundle struct {
 	Metadata        *Metadata               `json:"metadata"`
 	Uid             string                  `json:"uid"`
 	Name            string                  `json:"name"`
-	StencilGroups   []*BundleStencilGroup   `json:"stencil_groups"`
 	BaseTemplates   []*BundleBaseTemplates  `json:"base_templates"`
 	Policies        []*BundlePolicy         `json:"policies"`
 	Transformations []*BundleTransformation `json:"transformations"`
@@ -56,12 +55,6 @@ type BundleStencil struct {
 	Sequence         int      `json:"sequence"`
 }
 
-type BundleStencilGroup struct {
-	Uid  string   `json:"uid"`
-	Name string   `json:"name"`
-	Tags []string `json:"tags"`
-}
-
 type BundlePolicy struct {
 	Uid      string   `json:"uid"`
 	Name     string   `json:"name"`
@@ -99,7 +92,6 @@ func CreateFormationBundle(formation Formation, app string, configurations []str
 		BaseTemplates:   createBaseTemplates(formation),
 		Policies:        createPolicies(formation.Policies),
 		Transformations: createTransformations(formation.Transformations),
-		StencilGroups:   createStencilGroups(formation.StencilGroups),
 		Workflows:       createWorkflows(formation.Workflows),
 		Configurations:  configurations,
 		HelmReleases:    createHelmReleases(formation.HelmReleases),
@@ -152,19 +144,6 @@ func createStencil(stencil Stencil) *BundleStencil {
 		Tags:             stencil.Tags,
 		Sequence:         stencil.Sequence,
 	}
-}
-
-func createStencilGroups(stencilGroups []StencilGroup) []*BundleStencilGroup {
-	result := make([]*BundleStencilGroup, len(stencilGroups))
-	for idx, st := range stencilGroups {
-		result[idx] = &BundleStencilGroup{
-			Name: st.Name,
-			Uid:  st.Uid,
-			Tags: st.Tags,
-		}
-	}
-
-	return result
 }
 
 func createPolicies(policies []Policy) []*BundlePolicy {
@@ -324,21 +303,6 @@ func (b *BundleHelmRelease) AsRelease(bundlePath string) (*HelmRelease, error) {
 		RepositoryURL: b.RepositoryURL,
 		Version:       b.Version,
 		Body:          bodyString,
-	}, nil
-}
-
-func (b *BundleStencilGroup) AsStencilGroup(bundlePath string) (*StencilGroup, error) {
-	ext := ".json"
-	body, err := ioutil.ReadFile(filepath.Join(bundlePath, "stencil_groups", b.Uid) + ext)
-	if err != nil {
-		return nil, err
-	}
-
-	return &StencilGroup{
-		Uid:   b.Uid,
-		Name:  b.Name,
-		Tags:  b.Tags,
-		Rules: string(body),
 	}, nil
 }
 
