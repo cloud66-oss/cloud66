@@ -91,9 +91,10 @@ type StackEnvVar struct {
 }
 
 type RedeployResponse struct {
-	Status  bool   `json:"ok"`
-	Message string `json:"message"`
-	Queued  bool   `json:"queued"`
+	Status        bool   `json:"ok"`
+	Message       string `json:"message"`
+	Queued        bool   `json:"queued"`
+	AsyncActionId *int   `json:"async_action_id"`
 }
 
 func (s Stack) Status() string {
