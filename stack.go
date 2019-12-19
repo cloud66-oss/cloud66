@@ -453,13 +453,15 @@ func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, 
 	return genericRes, err
 }
 
-func (c *Client) RedeployStack(stackUid string, gitRef string, services []string) (*RedeployResponse, error) {
+func (c *Client) RedeployStack(stackUid, gitRef, deployStrategy string, services []string) (*RedeployResponse, error) {
 	params := struct {
-		GitRef   string   `json:"git_ref"`
-		Services []string `json:"services"`
+		GitRef         string   `json:"git_ref"`
+		DeployStrategy string   `json:"deploy_strategy"`
+		Services       []string `json:"services"`
 	}{
-		GitRef:   gitRef,
-		Services: services,
+		GitRef:         gitRef,
+		DeployStrategy: deployStrategy,
+		Services:       services,
 	}
 	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/deployments.json", params, nil)
 	if err != nil {
