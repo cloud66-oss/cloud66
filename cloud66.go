@@ -49,6 +49,7 @@ type Client struct {
 	HTTP              *http.Client
 	URL               string
 	UserAgent         string
+	Hostname          string
 	AccountId         *int
 	Debug             bool
 	AdditionalHeaders http.Header
@@ -335,10 +336,15 @@ func GetClient(tokenFile, tokenDir, version string, config *ClientConfig) Client
 		TokenCache:   oauth.CacheFile(cachefile),
 	}
 
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Printf("unable to get the hostname\n", err.Error())
+	}
 	transport := &oauth.Transport{Config: oauthConfig}
 	token, _ := oauthConfig.TokenCache.Token()
 	transport.Token = token
 	c.HTTP = transport.Client()
+	c.Hostname = hostname
 
 	return c
 }
