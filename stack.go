@@ -300,13 +300,15 @@ func (c *Client) StackEnvVars(uid string) ([]StackEnvVar, error) {
 	return result, nil
 }
 
-func (c *Client) StackEnvVarNew(stackUid string, key string, value string) (*AsyncResult, error) {
+func (c *Client) StackEnvVarNew(stackUid string, key string, value string, applyStrategy string) (*AsyncResult, error) {
 	params := struct {
-		Key   string `json:"key"`
-		Value string `json:"value"`
+		Key           string `json:"key"`
+		Value         string `json:"value"`
+		ApplyStrategy string `json:"apply_strategy"`
 	}{
-		Key:   key,
-		Value: value,
+		Key:           key,
+		Value:         value,
+		ApplyStrategy: applyStrategy,
 	}
 	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/environments.json", params, nil)
 	if err != nil {
@@ -316,11 +318,13 @@ func (c *Client) StackEnvVarNew(stackUid string, key string, value string) (*Asy
 	return asyncResult, c.DoReq(req, &asyncResult, nil)
 }
 
-func (c *Client) StackEnvVarSet(stackUid string, key string, value string) (*AsyncResult, error) {
+func (c *Client) StackEnvVarSet(stackUid string, key string, value string, applyStrategy string) (*AsyncResult, error) {
 	params := struct {
-		Value string `json:"value"`
+		Value         string `json:"value"`
+		ApplyStrategy string `json:"apply_strategy"`
 	}{
-		Value: value,
+		Value:         value,
+		ApplyStrategy: applyStrategy,
 	}
 	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/environments/"+key+".json", params, nil)
 	if err != nil {
