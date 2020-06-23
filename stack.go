@@ -334,6 +334,50 @@ func (c *Client) StackEnvVarSet(stackUid string, key string, value string, apply
 	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
+func (c *Client) StackEnvVarDownload(stackUid string, bulkContentType string) (string, error) {
+	params := struct {
+		BulkContentType string `json:"bulk_content_type"`
+	}{
+		BulkContentType: bulkContentType,
+	}
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/environments/download.json", params, nil)
+	if err != nil {
+		return "", err
+	}
+	result := struct {
+		BulkContent string `json:"bulk_content"`
+	}{}
+	err = c.DoReq(req, &result, nil)
+	if err != nil {
+		return "", err
+	}
+	return result.BulkContent, nil
+}
+
+func (c *Client) StackEnvVarUpload(stackUid string, bulkContentType string, bulkContent string, applyStrategy string, patch bool) (*AsyncResult, error) {
+	params := struct {
+		BulkContentType string `json:"bulk_content_type"`
+		BulkContent     string `json:"bulk_content"`
+		ApplyStrategy   string `json:"apply_strategy"`
+	}{
+		BulkContentType: bulkContentType,
+		BulkContent:     bulkContent,
+		ApplyStrategy:   applyStrategy,
+	}
+	var method string
+	if patch {
+		method = "PATCH"
+	} else {
+		method = "POST"
+	}
+	req, err := c.NewRequest(method, "/stacks/"+stackUid+"/environments/upload.json", params, nil)
+	if err != nil {
+		return nil, err
+	}
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
+}
+
 func (c *Client) FindStackByName(stackName, environment string) (*Stack, error) {
 	stacks, err := c.StackList()
 
