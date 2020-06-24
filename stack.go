@@ -340,7 +340,7 @@ func (c *Client) StackEnvVarDownload(stackUid string, bulkContentType string) (s
 	}{
 		BulkContentType: bulkContentType,
 	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/environments/download.json", params, nil)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/environments/bulk.json", params, nil)
 	if err != nil {
 		return "", err
 	}
@@ -370,7 +370,7 @@ func (c *Client) StackEnvVarUpload(stackUid string, bulkContentType string, bulk
 	} else {
 		method = "POST"
 	}
-	req, err := c.NewRequest(method, "/stacks/"+stackUid+"/environments/upload.json", params, nil)
+	req, err := c.NewRequest(method, "/stacks/"+stackUid+"/environments/bulk.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
