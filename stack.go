@@ -300,6 +300,33 @@ func (c *Client) StackEnvVars(uid string) ([]StackEnvVar, error) {
 	return result, nil
 }
 
+func (c *Client) StackEnvVarsString(stackUid string, environmentsFormat string, requestedTypes []string) (string, error) {
+	if environmentsFormat == "api" {
+		return "", errors.New("API format of environment variables does not return a string")
+	}
+
+	params := struct {
+		EnvironmentsFormat string `json:"environments_format"`
+		RequestedTypes []string `json:"requested_types"`
+	}{
+		EnvironmentsFormat: environmentsFormat,
+		RequestedTypes: requestedTypes,
+	}
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/environments.json", params, nil)
+	if err != nil {
+		return "", err
+	}
+	result := struct {
+		Contents string `json:"contents"`
+	}{}
+	err = c.DoReq(req, &result, nil)
+	if err != nil {
+		return "", err
+	}
+	return result.Contents, nil
+}
+
+
 func (c *Client) StackEnvVarNew(stackUid string, key string, value string, applyStrategy string) (*AsyncResult, error) {
 	params := struct {
 		Key           string `json:"key"`
@@ -334,34 +361,14 @@ func (c *Client) StackEnvVarSet(stackUid string, key string, value string, apply
 	return asyncRes, c.DoReq(req, &asyncRes, nil)
 }
 
-func (c *Client) StackEnvVarDownload(stackUid string, bulkContentType string) (string, error) {
+func (c *Client) StackEnvVarUpload(stackUid string, environmentsFormat string, contents string, applyStrategy string, patch bool) (*AsyncResult, error) {
 	params := struct {
-		BulkContentType string `json:"bulk_content_type"`
-	}{
-		BulkContentType: bulkContentType,
-	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/environments/bulk.json", params, nil)
-	if err != nil {
-		return "", err
-	}
-	result := struct {
-		BulkContent string `json:"bulk_content"`
-	}{}
-	err = c.DoReq(req, &result, nil)
-	if err != nil {
-		return "", err
-	}
-	return result.BulkContent, nil
-}
-
-func (c *Client) StackEnvVarUpload(stackUid string, bulkContentType string, bulkContent string, applyStrategy string, patch bool) (*AsyncResult, error) {
-	params := struct {
-		BulkContentType string `json:"bulk_content_type"`
-		BulkContent     string `json:"bulk_content"`
+		EnvironmentsFormat string `json:"environments_format"`
+		Contents     string `json:"contents"`
 		ApplyStrategy   string `json:"apply_strategy"`
 	}{
-		BulkContentType: bulkContentType,
-		BulkContent:     bulkContent,
+		EnvironmentsFormat: environmentsFormat,
+		Contents:     contents,
 		ApplyStrategy:   applyStrategy,
 	}
 	var method string
