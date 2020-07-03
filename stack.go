@@ -300,6 +300,33 @@ func (c *Client) StackEnvVars(uid string) ([]StackEnvVar, error) {
 	return result, nil
 }
 
+func (c *Client) StackEnvVarsString(stackUid string, environmentsFormat string, requestedTypes []string) (string, error) {
+	if environmentsFormat == "api" {
+		return "", errors.New("API format of environment variables does not return a string")
+	}
+
+	params := struct {
+		EnvironmentsFormat string `json:"environments_format"`
+		RequestedTypes []string `json:"requested_types"`
+	}{
+		EnvironmentsFormat: environmentsFormat,
+		RequestedTypes: requestedTypes,
+	}
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/environments.json", params, nil)
+	if err != nil {
+		return "", err
+	}
+	result := struct {
+		Contents string `json:"contents"`
+	}{}
+	err = c.DoReq(req, &result, nil)
+	if err != nil {
+		return "", err
+	}
+	return result.Contents, nil
+}
+
+
 func (c *Client) StackEnvVarNew(stackUid string, key string, value string, applyStrategy string) (*AsyncResult, error) {
 	params := struct {
 		Key           string `json:"key"`
@@ -327,6 +354,30 @@ func (c *Client) StackEnvVarSet(stackUid string, key string, value string, apply
 		ApplyStrategy: applyStrategy,
 	}
 	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/environments/"+key+".json", params, nil)
+	if err != nil {
+		return nil, err
+	}
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
+}
+
+func (c *Client) StackEnvVarUpload(stackUid string, environmentsFormat string, contents string, applyStrategy string, patch bool) (*AsyncResult, error) {
+	params := struct {
+		EnvironmentsFormat string `json:"environments_format"`
+		Contents     string `json:"contents"`
+		ApplyStrategy   string `json:"apply_strategy"`
+	}{
+		EnvironmentsFormat: environmentsFormat,
+		Contents:     contents,
+		ApplyStrategy:   applyStrategy,
+	}
+	var method string
+	if patch {
+		method = "PATCH"
+	} else {
+		method = "POST"
+	}
+	req, err := c.NewRequest(method, "/stacks/"+stackUid+"/environments/bulk.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
