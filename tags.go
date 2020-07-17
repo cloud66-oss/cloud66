@@ -18,51 +18,6 @@ type EntityTag struct {
 	Reserved bool   `json:"reserved"`
 }
 
-func (c *Client) AllTags() ([]EntityTags, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
-
-	var p Pagination
-	var result []EntityTags
-	var intermediateResult []EntityTags
-
-	for {
-		req, err := c.NewRequest("GET", "/tags", nil, query_strings)
-		if err != nil {
-			return nil, err
-		}
-
-		intermediateResult = nil
-		err = c.DoReq(req, &intermediateResult, &p)
-		if err != nil {
-			return nil, err
-		}
-
-		result = append(result, intermediateResult...)
-		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
-		} else {
-			break
-		}
-	}
-	return result, nil
-}
-
-func (c *Client) EntityTags(entity, id string) (*EntityTags, error) {
-	req, err := c.NewRequest("GET", "/tags/"+entity+"/"+id, nil, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var entityTags *EntityTags
-	err = c.DoReq(req, &entityTags, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return entityTags, nil
-}
-
 func (c *Client) PatchEntityTags(entity, id string, tagsToAdd, tagsToDelete []string) (*EntityTags, error) {
 	type tagOperation struct {
 		Operation string   `json:"op"`
