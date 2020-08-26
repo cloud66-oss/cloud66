@@ -6,7 +6,7 @@ type Queue struct {
 	Name string `json:"name"`
 }
 
-func (c *Client) RegisterAgent() error {
+func (c *Client) RegisterAgent() (string, error) {
 	var payload = struct {
 		Hostname  string `json:"host_name"`
 	}{
@@ -15,16 +15,20 @@ func (c *Client) RegisterAgent() error {
 
 	req, err := c.NewRequest("POST", "/queues/register.json", payload, nil)
 	if err != nil {
-		return nil
+		return "", nil
 	}
 	
-	var queueRes json.RawMessage
-	err = c.DoReq(req, &queueRes, nil)
-	if err != nil {
-		return nil
+	var queueRes struct {
+		Ok bool `json:"ok"`
+		APIKey string `json:"api_key"`
 	}
 
-	return nil 
+	err = c.DoReq(req, &queueRes, nil)
+	if err != nil {
+		return "", nil
+	}
+
+	return queueRes.APIKey, nil 
 }
 
 func (c *Client) GetQueues() ([]Queue, error) {
