@@ -19,8 +19,8 @@ func (c *Client) RegisterAgent() (string, error) {
 	}
 	
 	var queueRes struct {
-		Ok bool `json:"ok"`
-		APIKey string `json:"api_key"`
+		Ok     bool   `json:"ok"`
+		LogKey string `json:"log_key"`
 	}
 
 	err = c.DoReq(req, &queueRes, nil)
@@ -28,7 +28,7 @@ func (c *Client) RegisterAgent() (string, error) {
 		return "", err
 	}
 
-	return queueRes.APIKey, nil 
+	return queueRes.LogKey, nil 
 }
 
 func (c *Client) GetQueues() ([]Queue, error) {
