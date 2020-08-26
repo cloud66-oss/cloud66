@@ -15,7 +15,7 @@ func (c *Client) RegisterAgent() (string, error) {
 
 	req, err := c.NewRequest("POST", "/queues/register.json", payload, nil)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	
 	var queueRes struct {
@@ -25,7 +25,7 @@ func (c *Client) RegisterAgent() (string, error) {
 
 	err = c.DoReq(req, &queueRes, nil)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return queueRes.APIKey, nil 
