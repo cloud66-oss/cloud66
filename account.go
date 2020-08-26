@@ -79,12 +79,42 @@ func (c *Client) AccountInfos() ([]Account, error) {
 	return result, nil
 }
 
+// FetchJWT pulls a JWT token for the given aud and scope from Cloud 66
+func (c *Client) FetchJWT(aud string, scope string) (string, error) {
+	var req *http.Request
+	var err error
+
+	params := struct {
+		Scope string `json:"scope"`
+		Aud string `json:"aud"`
+	}{
+		Scope: scope,
+		Aud: aud,
+	}
+
+	req, err = c.NewRequest("POST", "/jwt/fetch.json", params, nil)
+	if err != nil {
+		return "", err
+	}
+
+	var jwt string
+	err = c.DoReq(req, &jwt, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return jwt, nil
+}
+
 // AccountOTP returns the OTP from the server. If accountId and stackId are passed
 // (!= 0) then they will be passed up
 func (c *Client) AccountOTP() (string, error) {
 	var req *http.Request
 	var err error
 	req, err = c.NewRequest("GET", "/accounts/otp.json", nil, nil)
+	if err != nil {
+		return "", err
+	}
 
 	var otp *OTP
 	err = c.DoReq(req, &otp, nil)
