@@ -67,17 +67,19 @@ func (c *Client) PopQueue(queueName string) (json.RawMessage, error) {
 	return queueRes, nil
 }
 
-func (c *Client) UpdateQueue(queueName string, taskUUID string, state string, runResult string) (json.RawMessage, error) {
+func (c *Client) UpdateQueue(queueName string, taskUUID string, state string, runResult string, sessionID string) (json.RawMessage, error) {
 	var payload = struct {
 		TaskUUID  string `json:"task_uuid"`
 		State     string `json:"state"`
 		RunResult string `json:"run_result"`
 		Hostname  string `json:"host_name"`
+		SessionID string `json:"session_id"`
 	}{
 		TaskUUID:  taskUUID,
 		State:     state,
 		RunResult: runResult,
 		Hostname:  c.Hostname,
+		SessionID: sessionID,
 	}
 
 	req, err := c.NewRequest("PUT", "/queues/"+queueName+".json", payload, nil)
