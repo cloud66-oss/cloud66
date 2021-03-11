@@ -73,7 +73,7 @@ type StackSetting struct {
 	Key      string      `json:"key"`
 	Value    interface{} `json:"value"`
 	Readonly bool        `json:"readonly"`
-	Hidden   bool        `json:"readonly"`
+	Hidden   bool        `json:"hidden"`
 }
 
 type StackEnvVarHistory struct {
