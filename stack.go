@@ -73,6 +73,7 @@ type StackSetting struct {
 	Key      string      `json:"key"`
 	Value    interface{} `json:"value"`
 	Readonly bool        `json:"readonly"`
+	Hidden   bool        `json:"hidden"`
 }
 
 type StackEnvVarHistory struct {
@@ -306,11 +307,11 @@ func (c *Client) StackEnvVarsString(stackUid string, environmentsFormat string, 
 	}
 
 	params := struct {
-		EnvironmentsFormat string `json:"environments_format"`
-		RequestedTypes []string `json:"requested_types"`
+		EnvironmentsFormat string   `json:"environments_format"`
+		RequestedTypes     []string `json:"requested_types"`
 	}{
 		EnvironmentsFormat: environmentsFormat,
-		RequestedTypes: requestedTypes,
+		RequestedTypes:     requestedTypes,
 	}
 	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/environments.json", params, nil)
 	if err != nil {
@@ -325,7 +326,6 @@ func (c *Client) StackEnvVarsString(stackUid string, environmentsFormat string, 
 	}
 	return result.Contents, nil
 }
-
 
 func (c *Client) StackEnvVarNew(stackUid string, key string, value string, applyStrategy string) (*AsyncResult, error) {
 	params := struct {
@@ -364,12 +364,12 @@ func (c *Client) StackEnvVarSet(stackUid string, key string, value string, apply
 func (c *Client) StackEnvVarUpload(stackUid string, environmentsFormat string, contents string, applyStrategy string, patch bool) (*AsyncResult, error) {
 	params := struct {
 		EnvironmentsFormat string `json:"environments_format"`
-		Contents     string `json:"contents"`
-		ApplyStrategy   string `json:"apply_strategy"`
+		Contents           string `json:"contents"`
+		ApplyStrategy      string `json:"apply_strategy"`
 	}{
 		EnvironmentsFormat: environmentsFormat,
-		Contents:     contents,
-		ApplyStrategy:   applyStrategy,
+		Contents:           contents,
+		ApplyStrategy:      applyStrategy,
 	}
 	var method string
 	if patch {
