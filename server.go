@@ -91,12 +91,11 @@ func (c *Client) ServerKeyInformation(stackUid string, serverUid string) (string
 }
 
 func (c *Client) GetServer(stackUid string, serverUid string, includeSshKey int) (*Server, error) {
-	params := struct {
-		Value int `json:"include_private_key"`
-	}{
-		Value: includeSshKey,
+	queryStrings := make(map[string]string)
+	if includeSshKey == 1 {
+		queryStrings["include_private_key"] = "1"
 	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers/"+serverUid+".json", params, nil)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers/"+serverUid+".json", nil, queryStrings)
 	if err != nil {
 		return nil, err
 	}
