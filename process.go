@@ -11,26 +11,19 @@ type Process struct {
 }
 
 func (c *Client) GetProcesses(stackUid string, serverUid *string) ([]Process, error) {
-	var params interface{}
-	if serverUid == nil {
-		params = nil
-	} else {
-		params = struct {
-			ServerUid string `json:"server_uid"`
-		}{
-			ServerUid: *serverUid,
-		}
-	}
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	if serverUid != nil {
+		queryStrings["server_uid"] = *serverUid
+	}
 
 	var p Pagination
 	var result []Process
 	var processRes []Process
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/processes.json", params, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/processes.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -43,7 +36,7 @@ func (c *Client) GetProcesses(stackUid string, serverUid *string) ([]Process, er
 
 		result = append(result, processRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}
@@ -52,17 +45,13 @@ func (c *Client) GetProcesses(stackUid string, serverUid *string) ([]Process, er
 }
 
 func (c *Client) GetProcess(stackUid string, name string, serverUid *string) (*Process, error) {
-	var params interface{}
-	if serverUid == nil {
-		params = nil
-	} else {
-		params = struct {
-			ServerUid string `json:"server_uid"`
-		}{
-			ServerUid: *serverUid,
-		}
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
+	if serverUid != nil {
+		queryStrings["server_uid"] = *serverUid
 	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/processes/"+name+".json", params, nil)
+
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/processes/"+name+".json", nil, queryStrings)
 	if err != nil {
 		return nil, err
 	}

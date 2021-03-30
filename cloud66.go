@@ -70,8 +70,8 @@ type Pagination struct {
 
 type filterFunction func(item interface{}) bool
 
-func (c *Client) Get(v interface{}, path string, query_strings map[string]string, p *Pagination) error {
-	return c.APIReq(v, "GET", path, nil, query_strings, p)
+func (c *Client) Get(v interface{}, path string, queryStrings map[string]string, p *Pagination) error {
+	return c.APIReq(v, "GET", path, nil, queryStrings, p)
 }
 
 func (c *Client) Patch(v interface{}, path string, body interface{}) error {
@@ -90,7 +90,7 @@ func (c *Client) Delete(path string) error {
 	return c.APIReq(nil, "DELETE", path, nil, nil, nil)
 }
 
-func (c *Client) NewRequest(method, path string, body interface{}, query_strings map[string]string) (*http.Request, error) {
+func (c *Client) NewRequest(method, path string, body interface{}, queryStrings map[string]string) (*http.Request, error) {
 	var ctype string
 	var rbody io.Reader
 
@@ -125,8 +125,8 @@ func (c *Client) NewRequest(method, path string, body interface{}, query_strings
 	}
 
 	var qs string
-	if (query_strings != nil) && (len(query_strings) > 0) {
-		for key, value := range query_strings {
+	if (queryStrings != nil) && (len(queryStrings) > 0) {
+		for key, value := range queryStrings {
 			if qs == "" {
 				qs = "?"
 			} else {
@@ -168,8 +168,8 @@ func (c *Client) NewRequest(method, path string, body interface{}, query_strings
 	return req, nil
 }
 
-func (c *Client) APIReq(v interface{}, meth, path string, body interface{}, query_strings map[string]string, p *Pagination) error {
-	req, err := c.NewRequest(meth, path, body, query_strings)
+func (c *Client) APIReq(v interface{}, meth, path string, body interface{}, queryStrings map[string]string, p *Pagination) error {
+	req, err := c.NewRequest(meth, path, body, queryStrings)
 	if err != nil {
 		return err
 	}

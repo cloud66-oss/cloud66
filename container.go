@@ -40,35 +40,21 @@ type Container struct {
 }
 
 func (c *Client) GetContainers(stackUid string, serverUid *string, serviceName *string) ([]Container, error) {
-	type Params struct {
-		ServerUid   string `json:"server_uid"`
-		ServiceName string `json:"service_name"`
-	}
-	var params Params
-	if serverUid != nil && serviceName != nil {
-		params = Params{
-			ServerUid:   *serverUid,
-			ServiceName: *serviceName,
-		}
-	} else if serverUid != nil {
-		params = Params{
-			ServerUid: *serverUid,
-		}
-	} else if serviceName != nil {
-		params = Params{
-			ServiceName: *serviceName,
-		}
-	}
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	if serverUid != nil {
+		queryStrings["server_uid"] = *serverUid
+	}
+	if serviceName != nil {
+		queryStrings["service_name"] = *serviceName
+	}
 
 	var p Pagination
 	var result []Container
 	var containerRes []Container
-
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/containers.json", params, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/containers.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -81,7 +67,7 @@ func (c *Client) GetContainers(stackUid string, serverUid *string, serviceName *
 
 		result = append(result, containerRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}

@@ -43,25 +43,18 @@ func (bj BasicJob) GetBasicJob() BasicJob {
 
 func (c *Client) GetJobs(stackUid string, serverUid *string) ([]Job, error) {
 	fmt.Printf("")
-	var params interface{}
-	if serverUid == nil {
-		params = nil
-	} else {
-		params = struct {
-			ServerUid string `json:"server_uid"`
-		}{
-			ServerUid: *serverUid,
-		}
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
+	if serverUid != nil {
+		queryStrings["server_uid"] = *serverUid
 	}
-
-	query_strings := make(map[string]string)
 
 	var p Pagination
 	var result []Job
 	var jobRes []*json.RawMessage
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/jobs.json", params, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/jobs.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -81,7 +74,7 @@ func (c *Client) GetJobs(stackUid string, serverUid *string) ([]Job, error) {
 		}
 
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}

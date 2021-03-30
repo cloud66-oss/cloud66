@@ -61,15 +61,15 @@ func (r *Renders) Warnings() []RenderIssue {
 }
 
 func (c *Client) Snapshots(stackUid string) ([]Snapshot, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	var p Pagination
 	var result []Snapshot
 	var snapshotRes []Snapshot
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/snapshots.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/snapshots.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -82,7 +82,7 @@ func (c *Client) Snapshots(stackUid string) ([]Snapshot, error) {
 
 		result = append(result, snapshotRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}
@@ -93,19 +93,19 @@ func (c *Client) Snapshots(stackUid string) ([]Snapshot, error) {
 }
 
 func (c *Client) RenderSnapshot(stackUid string, snapshotUid string, formationUid string, requestFiles []string, useLatest bool, filter string) (*Renders, error) {
-	query_strings := make(map[string]string)
-	query_strings["requested_files"] = strings.Join(requestFiles, ",")
+	queryStrings := make(map[string]string)
+	queryStrings["requested_files"] = strings.Join(requestFiles, ",")
 	if !useLatest {
 		// default is true on the server
-		query_strings["use_latest"] = "false"
+		queryStrings["use_latest"] = "false"
 	}
 	if filter != "" {
-		query_strings["filter"] = filter
+		queryStrings["filter"] = filter
 	}
 
 	var result *Renders
 
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/snapshots/"+snapshotUid+"/formation/"+formationUid, nil, query_strings)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/snapshots/"+snapshotUid+"/formation/"+formationUid, nil, queryStrings)
 	if err != nil {
 		return nil, err
 	}

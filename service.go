@@ -18,26 +18,18 @@ type Service struct {
 }
 
 func (c *Client) GetServices(stackUid string, serverUid *string) ([]Service, error) {
-	var params interface{}
-	if serverUid == nil {
-		params = nil
-	} else {
-		params = struct {
-			ServerUid string `json:"server_uid"`
-		}{
-			ServerUid: *serverUid,
-		}
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
+	if serverUid != nil {
+		queryStrings["server_uid"] = *serverUid
 	}
-
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
 
 	var p Pagination
 	var result []Service
 	var serviceRes []Service
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/services.json", params, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/services.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -50,7 +42,7 @@ func (c *Client) GetServices(stackUid string, serverUid *string) ([]Service, err
 
 		result = append(result, serviceRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}
@@ -61,27 +53,15 @@ func (c *Client) GetServices(stackUid string, serverUid *string) ([]Service, err
 }
 
 func (c *Client) GetService(stackUid string, serviceName string, serverUid *string, wrapCommand *string) (*Service, error) {
-	var params interface{}
-	if serverUid == nil {
-		params = nil
-	} else {
-		if wrapCommand == nil {
-			params = struct {
-				ServerUid string `json:"server_uid"`
-			}{
-				ServerUid: *serverUid,
-			}
-		} else {
-			params = struct {
-				ServerUid   string `json:"server_uid"`
-				WrapCommand string `json:"wrap_command"`
-			}{
-				ServerUid:   *serverUid,
-				WrapCommand: *wrapCommand,
-			}
-		}
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
+	if serverUid != nil {
+		queryStrings["server_uid"] = *serverUid
 	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/services/"+serviceName+".json", params, nil)
+	if wrapCommand != nil {
+		queryStrings["wrap_command"] = *wrapCommand
+	}
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/services/"+serviceName+".json", nil, queryStrings)
 	if err != nil {
 		return nil, err
 	}

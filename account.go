@@ -32,13 +32,10 @@ type OTP struct {
 }
 
 func (c *Client) AccountInfo(accountId int, getUnmanaged bool) (*Account, error) {
-	params := struct {
-		Value bool `json:"include_servers"`
-	}{
-		Value: getUnmanaged,
-	}
+	queryStrings := make(map[string]string)
+	queryStrings["include_servers"] = strconv.FormatBool(getUnmanaged)
 
-	req, err := c.NewRequest("GET", fmt.Sprintf("/accounts/%d.json", accountId), params, nil)
+	req, err := c.NewRequest("GET", fmt.Sprintf("/accounts/%d.json", accountId), nil, queryStrings)
 	if err != nil {
 		return nil, err
 	}
@@ -48,15 +45,15 @@ func (c *Client) AccountInfo(accountId int, getUnmanaged bool) (*Account, error)
 }
 
 func (c *Client) AccountInfos() ([]Account, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	var p Pagination
 	var result []Account
 	var accountRes []Account
 
 	for {
-		req, err := c.NewRequest("GET", "/accounts.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/accounts.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -69,7 +66,7 @@ func (c *Client) AccountInfos() ([]Account, error) {
 
 		result = append(result, accountRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}
