@@ -65,15 +65,15 @@ type User struct {
 }
 
 func (c *Client) ListUsers() ([]User, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	var p Pagination
 	var result []User
 	var userRes []User
 
 	for {
-		req, err := c.NewRequest("GET", "/users.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/users.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -86,7 +86,7 @@ func (c *Client) ListUsers() ([]User, error) {
 
 		result = append(result, userRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}

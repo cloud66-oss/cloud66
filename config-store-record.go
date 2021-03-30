@@ -35,11 +35,11 @@ func (c *Client) GetConfigStoreRecords(namespace string) ([]ConfigStoreRecord, e
 	var p Pagination
 	var result []ConfigStoreRecord
 
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	for {
-		req, err := c.NewRequest("GET", "/configstore/namespaces/"+namespace+"/records.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/configstore/namespaces/"+namespace+"/records.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +52,7 @@ func (c *Client) GetConfigStoreRecords(namespace string) ([]ConfigStoreRecord, e
 		result = append(result, intermediateResult...)
 
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}

@@ -34,15 +34,17 @@ func (c *Client) StartRemoteSession(stackUID string, serviceName string) (*Async
 
 // FetchRemoteSession fetches a session via API
 func (c *Client) FetchRemoteSession(stackUID string, sessionUID, serviceName *string) (*Session, error) {
-	params := struct {
-		ServiceName *string `json:"service_name"`
-		SessionUID  *string `json:"session_id"`
-	}{
-		ServiceName: serviceName,
-		SessionUID:  sessionUID,
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
+	if serviceName != nil {
+		queryStrings["service_name"] = *serviceName
 	}
+	if sessionUID != nil {
+		queryStrings["session_id"] = *sessionUID
+	}
+
 	url := fmt.Sprintf("/stacks/%s/sessions/fetch.json", stackUID)
-	req, err := c.NewRequest("GET", url, params, nil)
+	req, err := c.NewRequest("GET", url, nil, queryStrings)
 	if err != nil {
 		return nil, err
 	}

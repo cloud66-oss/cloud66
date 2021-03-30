@@ -59,15 +59,15 @@ type BackupSegment struct {
 }
 
 func (c *Client) GetBackupSegmentIndeces(stackUid string, backupId int) ([]BackupSegmentIndex, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	var p Pagination
 	var result []BackupSegmentIndex
 	var backupSegIndex []BackupSegmentIndex
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/backups/"+strconv.Itoa(backupId)+"/files.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/backups/"+strconv.Itoa(backupId)+"/files.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -80,7 +80,7 @@ func (c *Client) GetBackupSegmentIndeces(stackUid string, backupId int) ([]Backu
 
 		result = append(result, backupSegIndex...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}

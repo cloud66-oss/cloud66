@@ -14,16 +14,16 @@ type ServiceYaml struct {
 }
 
 func (c *Client) ServiceYamlList(stackUid string, include_body bool) ([]ServiceYaml, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
-	query_strings["include_body"] = strconv.FormatBool(include_body)
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
+	queryStrings["include_body"] = strconv.FormatBool(include_body)
 
 	var p Pagination
 	var result []ServiceYaml
 	var serviceYamlRes []ServiceYaml
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/service_yaml.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/service_yaml.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -36,7 +36,7 @@ func (c *Client) ServiceYamlList(stackUid string, include_body bool) ([]ServiceY
 
 		result = append(result, serviceYamlRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}

@@ -2,6 +2,7 @@ package cloud66
 
 import (
 	"encoding/json"
+	"strconv"
 )
 
 type WorkflowWrapper struct {
@@ -9,16 +10,13 @@ type WorkflowWrapper struct {
 }
 
 func (c *Client) GetWorkflow(stackUid, formationUid, snapshotUID string, useLatest bool, workflowName string) (*WorkflowWrapper, error) {
-	params := struct {
-		SnapshotUID string `json:"snapshot_uid"`
-		UseLatest   bool   `json:"use_latest"`
-		Workflow    string `json:"workflow"`
-	}{
-		SnapshotUID: snapshotUID,
-		UseLatest:   useLatest,
-		Workflow:    workflowName,
-	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/formations/"+formationUid+"/pipeline.json", params, nil)
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
+
+	queryStrings["snapshot_uid"] = snapshotUID
+	queryStrings["use_latest"] = strconv.FormatBool(useLatest)
+	queryStrings["workflow"] = workflowName
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/formations/"+formationUid+"/pipeline.json", nil, queryStrings)
 	if err != nil {
 		return nil, err
 	}

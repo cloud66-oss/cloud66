@@ -48,15 +48,15 @@ func (s Server) Health() string {
 }
 
 func (c *Client) Servers(stackUid string) ([]Server, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	var p Pagination
 	var result []Server
 	var serversRes []Server
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -69,7 +69,7 @@ func (c *Client) Servers(stackUid string) ([]Server, error) {
 
 		result = append(result, serversRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}
@@ -104,15 +104,15 @@ func (c *Client) GetServer(stackUid string, serverUid string, includeSshKey int)
 }
 
 func (c *Client) ServerSettings(stackUid string, serverUid string) ([]StackSetting, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	var p Pagination
 	var result []StackSetting
 	var settingsRes []StackSetting
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers/"+serverUid+"/settings.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers/"+serverUid+"/settings.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -125,7 +125,7 @@ func (c *Client) ServerSettings(stackUid string, serverUid string) ([]StackSetti
 
 		result = append(result, settingsRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}

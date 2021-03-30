@@ -114,15 +114,15 @@ func (s Stack) Health() string {
 }
 
 func (c *Client) StackList() ([]Stack, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	var p Pagination
 	var result []Stack
 	var stacksRes []Stack
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/stacks.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -135,7 +135,7 @@ func (c *Client) StackList() ([]Stack, error) {
 
 		result = append(result, stacksRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}
@@ -144,15 +144,15 @@ func (c *Client) StackList() ([]Stack, error) {
 }
 
 func (c *Client) StackListWithFilter(filter filterFunction) ([]Stack, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	var p Pagination
 	var mid_result []Stack
 	var stacksRes []Stack
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/stacks.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -165,7 +165,7 @@ func (c *Client) StackListWithFilter(filter filterFunction) ([]Stack, error) {
 
 		mid_result = append(mid_result, stacksRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}
@@ -237,15 +237,15 @@ func (c *Client) FindStackByUid(stackUid string) (*Stack, error) {
 }
 
 func (c *Client) StackSettings(uid string) ([]StackSetting, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	var p Pagination
 	var result []StackSetting
 	var settingsRes []StackSetting
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+uid+"/settings.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+uid+"/settings.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -258,7 +258,7 @@ func (c *Client) StackSettings(uid string) ([]StackSetting, error) {
 
 		result = append(result, settingsRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}
@@ -270,15 +270,15 @@ func (c *Client) StackSettings(uid string) ([]StackSetting, error) {
 
 func (c *Client) StackEnvVars(uid string) ([]StackEnvVar, error) {
 
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	var p Pagination
 	var result []StackEnvVar
 	var envVarsRes []StackEnvVar
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+uid+"/environments.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+uid+"/environments.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -291,7 +291,7 @@ func (c *Client) StackEnvVars(uid string) ([]StackEnvVar, error) {
 
 		result = append(result, envVarsRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}
@@ -305,15 +305,11 @@ func (c *Client) StackEnvVarsString(stackUid string, environmentsFormat string, 
 	if environmentsFormat == "api" {
 		return "", errors.New("API format of environment variables does not return a string")
 	}
-
-	params := struct {
-		EnvironmentsFormat string   `json:"environments_format"`
-		RequestedTypes     []string `json:"requested_types"`
-	}{
-		EnvironmentsFormat: environmentsFormat,
-		RequestedTypes:     requestedTypes,
-	}
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/environments.json", params, nil)
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
+	queryStrings["environmentsFormat"] = environmentsFormat
+	queryStrings["requested_types"] = strings.Join(requestedTypes, ",")
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/environments.json", nil, queryStrings)
 	if err != nil {
 		return "", err
 	}
@@ -398,15 +394,15 @@ func (c *Client) FindStackByName(stackName, environment string) (*Stack, error) 
 }
 
 func (c *Client) ManagedBackups(uid string) ([]ManagedBackup, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 
 	var p Pagination
 	var result []ManagedBackup
 	var managedBackupsRes []ManagedBackup
 
 	for {
-		req, err := c.NewRequest("GET", "/stacks/"+uid+"/backups.json", nil, query_strings)
+		req, err := c.NewRequest("GET", "/stacks/"+uid+"/backups.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -419,7 +415,7 @@ func (c *Client) ManagedBackups(uid string) ([]ManagedBackup, error) {
 
 		result = append(result, managedBackupsRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}

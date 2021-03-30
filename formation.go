@@ -33,10 +33,10 @@ func (f *Formation) FindStencil(stencilName string) *Stencil {
 }
 
 func (c *Client) Formations(stackUid string, fullContent bool) ([]Formation, error) {
-	query_strings := make(map[string]string)
-	query_strings["page"] = "1"
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
 	if fullContent {
-		query_strings["full_content"] = "1"
+		queryStrings["full_content"] = "1"
 	}
 
 	var p Pagination
@@ -44,7 +44,7 @@ func (c *Client) Formations(stackUid string, fullContent bool) ([]Formation, err
 	var formationRes []Formation
 
 	for {
-		req, err := c.NewRequest("GET", fmt.Sprintf("/stacks/%s/formations.json", stackUid), nil, query_strings)
+		req, err := c.NewRequest("GET", fmt.Sprintf("/stacks/%s/formations.json", stackUid), nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
@@ -57,7 +57,7 @@ func (c *Client) Formations(stackUid string, fullContent bool) ([]Formation, err
 
 		result = append(result, formationRes...)
 		if p.Current < p.Next {
-			query_strings["page"] = strconv.Itoa(p.Next)
+			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
 			break
 		}
