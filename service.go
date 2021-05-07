@@ -1,6 +1,9 @@
 package cloud66
 
-import "strconv"
+import (
+	"strconv"
+	"net/url"
+)
 
 type Service struct {
 	Name          string      `json:"name"`
@@ -59,7 +62,7 @@ func (c *Client) GetService(stackUid string, serviceName string, serverUid *stri
 		queryStrings["server_uid"] = *serverUid
 	}
 	if wrapCommand != nil {
-		queryStrings["wrap_command"] = *wrapCommand
+		queryStrings["wrap_command"] = url.QueryEscape(*wrapCommand)
 	}
 	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/services/"+serviceName+".json", nil, queryStrings)
 	if err != nil {
