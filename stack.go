@@ -504,16 +504,20 @@ func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, 
 	return genericRes, err
 }
 
-func (c *Client) RedeployStack(stackUid, gitRef, deployStrategy, deploymentProfile string, services []string) (*RedeployResponse, error) {
+func (c *Client) RedeployStack(stackUid, gitRef, deployStrategy, deploymentProfile string, rolloutStrategy *string, canaryPercentage *int, services []string) (*RedeployResponse, error) {
 	params := struct {
 		GitRef            string   `json:"git_ref"`
 		DeployStrategy    string   `json:"deploy_strategy"`
+		RolloutStrategy   *string  `json:"rollout_strategy"`
+		CanaryPercentage  *int     `json:"canary_percentage"`
 		DeploymentProfile string   `json:"deployment_profile"`
 		Services          []string `json:"services"`
 	}{
 		GitRef:            gitRef,
 		DeployStrategy:    deployStrategy,
 		DeploymentProfile: deploymentProfile,
+		RolloutStrategy:   rolloutStrategy,
+		CanaryPercentage:  canaryPercentage,
 		Services:          services,
 	}
 	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/deployments.json", params, nil)
