@@ -8,6 +8,7 @@ import (
 type ApplicationVariant struct {
 	UID        string    `json:"uid"`
 	Type       string    `json:"type"`
+	SubType    string    `json:"sub_type"`
 	GitRepo    string    `json:"git_repo"`
 	GitRef     string    `json:"git_ref"`
 	GitHash    string    `json:"git_hash"`
