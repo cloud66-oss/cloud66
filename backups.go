@@ -113,7 +113,6 @@ func (c *Client) GetBackupSegment(stackUid string, backupId int, extension strin
 }
 
 func (c *Client) NewBackup(stackUid string, dbtypes *string, frequency *string, keep *int, gzip *bool, exclude_tables *string, run_on_replica *bool, logical_backup *bool) error {
-
 	params := struct {
 		DbType        *string `json:"db_type"`
 		Frequency     *string `json:"frequency"`
