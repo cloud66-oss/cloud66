@@ -1,6 +1,7 @@
 package cloud66
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -16,6 +17,10 @@ type ApplicationVariant struct {
 	Percentage int       `json:"percentage"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+func (a *ApplicationVariant) TypeString() string {
+	return fmt.Sprintf("%s/%s", a.Type, a.SubType)
 }
 
 // GetApplicationVariants returns list of application variants
