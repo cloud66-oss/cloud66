@@ -15,8 +15,8 @@ type ApplicationVariant struct {
 	GitHash    string    `json:"git_hash"`
 	Tag        string    `json:"tag"`
 	Percentage int       `json:"percentage"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	UpdatedAt  time.Time `json:"updated_at_iso"`
+	CreatedAt  time.Time `json:"created_at_iso"`
 }
 
 func (a *ApplicationVariant) TypeString() string {
