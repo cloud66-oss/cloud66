@@ -23,6 +23,10 @@ func (a *ApplicationVariant) TypeString() string {
 	return fmt.Sprintf("%s/%s", a.Type, a.SubType)
 }
 
+func (a *ApplicationVariant) PercentageString() string {
+	return fmt.Sprintf("%v%%", a.Percentage)
+}
+
 // GetApplicationVariants returns list of application variants
 func (c *Client) GetApplicationVariants(stackUid string) ([]ApplicationVariant, error) {
 	var variants []ApplicationVariant
