@@ -44,9 +44,9 @@ func (c *Client) GetApplicationVariants(stackUid string) ([]ApplicationVariant, 
 // CommitRolloutVariant locks in the selected rollout variant
 func (c *Client) CommitRolloutVariant(stackUid string, rolloutVariant ApplicationVariant) (*AsyncResult, error) {
 	requestBody := struct {
-		Action string `json:"action"`
+		Operation string `json:"operation"`
 	}{
-		Action: "commit",
+		Operation: "commit",
 	}
 	req, err := c.NewRequest("PATCH", "/stacks/"+stackUid+"/application_variants/"+rolloutVariant.UID+".json", requestBody, nil)
 	if err != nil {
@@ -59,10 +59,10 @@ func (c *Client) CommitRolloutVariant(stackUid string, rolloutVariant Applicatio
 // UpdateCanaryRolloutPercentage updates the canary variant percentage
 func (c *Client) UpdateCanaryRolloutPercentage(stackUid string, canaryVariant ApplicationVariant, canaryPercentage int) (*AsyncResult, error) {
 	requestBody := struct {
-		Action           string `json:"action"`
+		Operation        string `json:"operation"`
 		CanaryPercentage int    `json:"canary_percentage"`
 	}{
-		Action:           "percentage",
+		Operation:        "commit",
 		CanaryPercentage: canaryPercentage,
 	}
 	req, err := c.NewRequest("PATCH", "/stacks/"+stackUid+"/application_variants/"+canaryVariant.UID+".json", requestBody, nil)
