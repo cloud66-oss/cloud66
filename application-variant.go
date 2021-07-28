@@ -42,7 +42,7 @@ func (c *Client) GetApplicationVariants(stackUid string) ([]ApplicationVariant, 
 }
 
 // CommitRolloutVariant locks in the selected rollout variant
-func (c *Client) CommitRolloutVariant(stackUid string, rolloutVariant ApplicationVariant) (*AsyncResult, error) {
+func (c *Client) CommitRolloutVariant(stackUid string, rolloutVariant ApplicationVariant) error {
 	requestBody := struct {
 		Operation string `json:"operation"`
 	}{
@@ -50,14 +50,13 @@ func (c *Client) CommitRolloutVariant(stackUid string, rolloutVariant Applicatio
 	}
 	req, err := c.NewRequest("PATCH", "/stacks/"+stackUid+"/application_variants/"+rolloutVariant.UID+".json", requestBody, nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes, nil)
+	return c.DoReq(req, nil, nil)
 }
 
 // UpdateCanaryRolloutPercentage updates the canary variant percentage
-func (c *Client) UpdateCanaryRolloutPercentage(stackUid string, canaryVariant ApplicationVariant, canaryPercentage int) (*AsyncResult, error) {
+func (c *Client) UpdateCanaryRolloutPercentage(stackUid string, canaryVariant ApplicationVariant, canaryPercentage int) error {
 	requestBody := struct {
 		Operation        string `json:"operation"`
 		CanaryPercentage int    `json:"canary_percentage"`
@@ -67,18 +66,16 @@ func (c *Client) UpdateCanaryRolloutPercentage(stackUid string, canaryVariant Ap
 	}
 	req, err := c.NewRequest("PATCH", "/stacks/"+stackUid+"/application_variants/"+canaryVariant.UID+".json", requestBody, nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes, nil)
+	return c.DoReq(req, nil, nil)
 }
 
 // DeletePreviewVariant removes the preview variant
-func (c *Client) DeletePreviewVariant(stackUid string, previewVariant ApplicationVariant) (*AsyncResult, error) {
+func (c *Client) DeletePreviewVariant(stackUid string, previewVariant ApplicationVariant) error {
 	req, err := c.NewRequest("DELETE", "/stacks/"+stackUid+"/application_variants/"+previewVariant.UID+".json", nil, nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	var asyncRes *AsyncResult
-	return asyncRes, c.DoReq(req, &asyncRes, nil)
+	return c.DoReq(req, nil, nil)
 }
