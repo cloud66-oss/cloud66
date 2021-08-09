@@ -307,7 +307,7 @@ func (c *Client) StackEnvVarsString(stackUid string, environmentsFormat string, 
 	}
 	queryStrings := make(map[string]string)
 	queryStrings["page"] = "1"
-	queryStrings["environmentsFormat"] = environmentsFormat
+	queryStrings["environments_format"] = environmentsFormat
 	queryStrings["requested_types"] = strings.Join(requestedTypes, ",")
 	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/environments.json", nil, queryStrings)
 	if err != nil {
