@@ -20,6 +20,9 @@ type ApplicationVariant struct {
 }
 
 func (a *ApplicationVariant) TypeString() string {
+	if a.SubType == "" {
+		return a.Type
+	}
 	return fmt.Sprintf("%s/%s", a.Type, a.SubType)
 }
 
