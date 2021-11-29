@@ -1,9 +1,18 @@
 package cloud66
 
 type NotificationUploadParams struct {
-	Alerts              []string `json:"alerts"`
-	TargetStackUid      string   `json:"dest_stack_id,omitempty"`
-	ApplicationGroupUid string   `json:"application_group_id,omitempty"`
+	Alerts              []Notification `json:"alerts"`
+	TargetStackUid      string         `json:"dest_stack_id,omitempty"`
+	ApplicationGroupUid string         `json:"application_group_id,omitempty"`
+}
+
+type NotificationSubscription struct {
+	Channel string `json:"channel"`
+}
+
+type Notification struct {
+	Name          string                     `json:"alert_name"`
+	Subscriptions []NotificationSubscription `json:"subscriptions,omitempty"`
 }
 
 type NotificationResponse struct {
@@ -26,10 +35,10 @@ type NotificationResponseBody struct {
 	Failures  NotificationResponseFailure `json:"failures"`
 }
 
-func (c *Client) NotificationDownload(stackUid string) ([]string, error) {
-	var notifications []string
+func (c *Client) NotificationDownload(stackUid string) ([]Notification, error) {
+	var notifications []Notification
 
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/alerts/download", nil, nil)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/alerts", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -41,14 +50,14 @@ func (c *Client) NotificationDownload(stackUid string) ([]string, error) {
 	return notifications, nil
 }
 
-func (c *Client) NotificationUploadStack(stackUid string, targetStackUid string, alerts []string) (*NotificationResponseBody, error) {
+func (c *Client) NotificationUploadStack(stackUid string, targetStackUid string, alerts []Notification) (*NotificationResponseBody, error) {
 	var notification NotificationUploadParams
 	notification.Alerts = alerts
 	notification.TargetStackUid = targetStackUid
 	return c.NotificationUpload(stackUid, notification)
 }
 
-func (c *Client) NotificationUploadAG(stackUid string, targetUid string, alerts []string) (*NotificationResponseBody, error) {
+func (c *Client) NotificationUploadAG(stackUid string, targetUid string, alerts []Notification) (*NotificationResponseBody, error) {
 	var notification NotificationUploadParams
 	notification.Alerts = alerts
 	notification.ApplicationGroupUid = targetUid
