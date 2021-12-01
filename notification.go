@@ -1,13 +1,15 @@
 package cloud66
 
 type NotificationUploadParams struct {
-	Alerts              []Notification `json:"alerts"`
-	TargetStackUid      string         `json:"dest_stack_id,omitempty"`
-	ApplicationGroupUid string         `json:"application_group_id,omitempty"`
+	Alerts               []Notification `json:"alerts"`
+	TargetStackUid       string         `json:"dest_stack_id,omitempty"`
+	ApplicationGroupName string         `json:"application_group_name,omitempty"`
 }
 
 type NotificationSubscription struct {
-	Channel string `json:"channel"`
+	Channel   string `json:"channel"`
+	SlackUrl  string `json:"slack_url,omitempty" yaml:"slack_url,omitempty"`
+	WebookUrl string `json:"webhook_url,omitempty"  yaml:"webhook_url,omitempty"`
 }
 
 type Notification struct {
@@ -50,24 +52,24 @@ func (c *Client) NotificationDownload(stackUid string) ([]Notification, error) {
 	return notifications, nil
 }
 
-func (c *Client) NotificationUploadStack(stackUid string, targetStackUid string, alerts []Notification) (*NotificationResponseBody, error) {
+func (c *Client) NotificationUploadStack(targetStackUid string, alerts []Notification) (*NotificationResponseBody, error) {
 	var notification NotificationUploadParams
 	notification.Alerts = alerts
 	notification.TargetStackUid = targetStackUid
-	return c.NotificationUpload(stackUid, notification)
+	return c.NotificationUpload(notification)
 }
 
-func (c *Client) NotificationUploadAG(stackUid string, targetUid string, alerts []Notification) (*NotificationResponseBody, error) {
+func (c *Client) NotificationUploadAG(targetUid string, alerts []Notification) (*NotificationResponseBody, error) {
 	var notification NotificationUploadParams
 	notification.Alerts = alerts
-	notification.ApplicationGroupUid = targetUid
-	return c.NotificationUpload(stackUid, notification)
+	notification.ApplicationGroupName = targetUid
+	return c.NotificationUpload(notification)
 }
 
-func (c *Client) NotificationUpload(stackUid string, notification NotificationUploadParams) (*NotificationResponseBody, error) {
+func (c *Client) NotificationUpload(notification NotificationUploadParams) (*NotificationResponseBody, error) {
 	var notifications NotificationResponseBody
 
-	req, err := c.NewRequest("PATCH", "/stacks/"+stackUid+"/alerts", notification, nil)
+	req, err := c.NewRequest("PATCH", "/alerts", notification, nil)
 	if err != nil {
 		return nil, err
 	}
