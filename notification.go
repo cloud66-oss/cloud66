@@ -59,7 +59,7 @@ func (c *Client) NotificationUploadStack(targetStackUid string, alerts []Notific
 	return c.NotificationUpload(notification)
 }
 
-func (c *Client) NotificationUploadAG(targetUid string, alerts []Notification) (*NotificationResponseBody, error) {
+func (c *Client) NotificationUploadApplicationGroup(targetUid string, alerts []Notification) (*NotificationResponseBody, error) {
 	var notification NotificationUploadParams
 	notification.Alerts = alerts
 	notification.ApplicationGroupName = targetUid
