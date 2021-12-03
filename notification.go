@@ -2,8 +2,8 @@ package cloud66
 
 type NotificationUploadParams struct {
 	Alerts               []Notification `json:"alerts"`
-	TargetStackUid       string         `json:"dest_stack_id,omitempty"`
-	ApplicationGroupName string         `json:"application_group_name,omitempty"`
+	TargetStackUid       string
+	ApplicationGroupName string `json:"application_group_name,omitempty"`
 }
 
 type NotificationSubscription struct {
@@ -34,8 +34,8 @@ type NotificationResponseFailure struct {
 
 type NotificationResponseBody struct {
 	Successes     NotificationResponse        `json:"successes"`
-	Failures      NotificationResponseFailure `json:"failures"`
 	NotApplicable NotificationResponseFailure `json:"not_applicable"`
+	Failures      NotificationResponseFailure `json:"failures"`
 }
 
 func (c *Client) NotificationDownload(stackUid string) ([]Notification, error) {
@@ -69,8 +69,14 @@ func (c *Client) NotificationUploadApplicationGroup(targetUid string, alerts []N
 
 func (c *Client) NotificationUpload(notification NotificationUploadParams) (*NotificationResponseBody, error) {
 	var notifications NotificationResponseBody
+	var requestPath string
 
-	req, err := c.NewRequest("PATCH", "/alerts", notification, nil)
+	if notification.TargetStackUid != "" {
+		requestPath = "/stacks/" + notification.TargetStackUid + "/alerts"
+	} else if notification.ApplicationGroupName != "" {
+		requestPath = "/application_groups/alerts"
+	}
+	req, err := c.NewRequest("PATCH", requestPath, notification, nil)
 	if err != nil {
 		return nil, err
 	}
