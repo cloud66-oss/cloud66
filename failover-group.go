@@ -41,19 +41,15 @@ func (c *Client) FailoverGroupList() ([]FailoverGroup, error) {
 	return result, nil
 }
 
-func (c *Client) AddFailoverGroup(primaryStack string, secondaryStack string, primaryLb string, secondaryLb string, currentStack CurrentStackType) error {
+func (c *Client) AddFailoverGroup(primaryStack string, secondaryStack string, currentStack CurrentStackType) error {
 	params := struct {
-		PrimaryStack     string           `json:"primary_stack_name"`
-		SecondaryStack   string           `json:"secondary_stack_name"`
-		PrimaryStackLb   string           `json:"primary_stack_lb_uid"`
-		SecondaryStackLb string           `json:"secondary_stack_lb_uid"`
-		CurrentStack     CurrentStackType `json:"current_stack"`
+		PrimaryStack   string           `json:"primary_stack_uid"`
+		SecondaryStack string           `json:"secondary_stack_uid"`
+		CurrentStack   CurrentStackType `json:"current_stack"`
 	}{
-		PrimaryStack:     primaryStack,
-		SecondaryStack:   secondaryStack,
-		PrimaryStackLb:   primaryLb,
-		SecondaryStackLb: secondaryLb,
-		CurrentStack:     currentStack,
+		PrimaryStack:   primaryStack,
+		SecondaryStack: secondaryStack,
+		CurrentStack:   currentStack,
 	}
 
 	req, err := c.NewRequest("POST", "/elastic_addresses", params, nil)
@@ -63,19 +59,15 @@ func (c *Client) AddFailoverGroup(primaryStack string, secondaryStack string, pr
 	return c.DoReq(req, nil, nil)
 }
 
-func (c *Client) UpdateFailoverGroup(failoverGroupUid string, primaryStack string, secondaryStack string, primaryLb string, secondaryLb string, currentStack CurrentStackType) error {
+func (c *Client) UpdateFailoverGroup(failoverGroupUid string, primaryStack string, secondaryStack string, currentStack CurrentStackType) error {
 	params := struct {
-		PrimaryStack     string           `json:"primary_stack_name"`
-		SecondaryStack   string           `json:"secondary_stack_name"`
-		PrimaryStackLb   string           `json:"primary_stack_lb_uid"`
-		SecondaryStackLb string           `json:"secondary_stack_lb_uid"`
-		CurrentStack     CurrentStackType `json:"current_stack"`
+		PrimaryStack   string           `json:"primary_stack_uid"`
+		SecondaryStack string           `json:"secondary_stack_uid"`
+		CurrentStack   CurrentStackType `json:"current_stack"`
 	}{
-		PrimaryStack:     primaryStack,
-		SecondaryStack:   secondaryStack,
-		PrimaryStackLb:   primaryLb,
-		SecondaryStackLb: secondaryLb,
-		CurrentStack:     currentStack,
+		PrimaryStack:   primaryStack,
+		SecondaryStack: secondaryStack,
+		CurrentStack:   currentStack,
 	}
 
 	req, err := c.NewRequest("PUT", "/elastic_addresses/"+failoverGroupUid, params, nil)
