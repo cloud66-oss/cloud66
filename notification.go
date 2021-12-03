@@ -33,8 +33,9 @@ type NotificationResponseFailure struct {
 }
 
 type NotificationResponseBody struct {
-	Successes NotificationResponse        `json:"successes"`
-	Failures  NotificationResponseFailure `json:"failures"`
+	Successes     NotificationResponse        `json:"successes"`
+	Failures      NotificationResponseFailure `json:"failures"`
+	NotApplicable NotificationResponseFailure `json:"not_applicable"`
 }
 
 func (c *Client) NotificationDownload(stackUid string) ([]Notification, error) {
