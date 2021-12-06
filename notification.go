@@ -2,8 +2,7 @@ package cloud66
 
 type NotificationUploadParams struct {
 	Alerts               []Notification `json:"alerts"`
-	TargetStackUid       string
-	ApplicationGroupName string `json:"application_group_name,omitempty"`
+	ApplicationGroupName string         `json:"application_group_name,omitempty"`
 }
 
 type NotificationSubscription struct {
@@ -54,26 +53,25 @@ func (c *Client) NotificationDownload(stackUid string) ([]Notification, error) {
 }
 
 func (c *Client) NotificationUploadStack(targetStackUid string, alerts []Notification) (*NotificationResponseBody, error) {
-	var notification NotificationUploadParams
-	notification.Alerts = alerts
-	notification.TargetStackUid = targetStackUid
-	return c.NotificationUpload(notification)
+	var notificationUploadParams NotificationUploadParams
+	notificationUploadParams.Alerts = alerts
+	return c.NotificationUpload(notificationUploadParams, &targetStackUid)
 }
 
 func (c *Client) NotificationUploadApplicationGroup(targetUid string, alerts []Notification) (*NotificationResponseBody, error) {
-	var notification NotificationUploadParams
-	notification.Alerts = alerts
-	notification.ApplicationGroupName = targetUid
-	return c.NotificationUpload(notification)
+	var notificationUploadParams NotificationUploadParams
+	notificationUploadParams.Alerts = alerts
+	notificationUploadParams.ApplicationGroupName = targetUid
+	return c.NotificationUpload(notificationUploadParams, nil)
 }
 
-func (c *Client) NotificationUpload(notification NotificationUploadParams) (*NotificationResponseBody, error) {
+func (c *Client) NotificationUpload(notification NotificationUploadParams, targetStackUid *string) (*NotificationResponseBody, error) {
 	var notifications NotificationResponseBody
 	var requestPath string
 
-	if notification.TargetStackUid != "" {
-		requestPath = "/stacks/" + notification.TargetStackUid + "/alerts"
-	} else if notification.ApplicationGroupName != "" {
+	if targetStackUid != nil {
+		requestPath = "/stacks/" + *targetStackUid + "/alerts"
+	} else {
 		requestPath = "/application_groups/alerts"
 	}
 	req, err := c.NewRequest("PATCH", requestPath, notification, nil)
