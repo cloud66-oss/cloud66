@@ -7,20 +7,22 @@ import (
 type CurrentStackType int
 
 const (
-	STACK_PRIMARY CurrentStackType = 1
-	STACK_BACKUP  CurrentStackType = 2
+	STACK_PRIMARY   CurrentStackType = 1
+	STACK_SECONDARY CurrentStackType = 2
 )
 
 type FailoverGroup struct {
-	Uid              string           `json:"uid"`
-	Address          string           `json:"address"`
-	PrimaryStackName string           `json:"primary_stack_name"`
-	BackupStackName  string           `json:"backup_stack_name"`
-	CurrentStack     CurrentStackType `json:"current_stack"`
-	BusyToggling     bool             `json:"busy_toggling"`
-	Readonly         bool             `json:"readonly"`
-	CreatedAt        time.Time        `json:"created_at"`
-	UpdatedAt        time.Time        `json:"updated_at"`
+	Uid                string           `json:"uid"`
+	Address            string           `json:"address"`
+	PrimaryStackName   string           `json:"primary_stack_name"`
+	PrimaryStackUid    string           `json:"primary_stack_uid"`
+	SecondaryStackName string           `json:"secondary_stack_name"`
+	SecondaryStackUid  string           `json:"secondary_stack_uid"`
+	CurrentStack       CurrentStackType `json:"current_stack"`
+	BusyToggling       bool             `json:"busy_toggling"`
+	Readonly           bool             `json:"readonly"`
+	CreatedAt          time.Time        `json:"created_at"`
+	UpdatedAt          time.Time        `json:"updated_at"`
 }
 
 func (c *Client) FailoverGroupList() ([]FailoverGroup, error) {
@@ -90,7 +92,7 @@ func (currentStackType *CurrentStackType) String() string {
 	switch *currentStackType {
 	case STACK_PRIMARY:
 		return "Primary"
-	case STACK_BACKUP:
+	case STACK_SECONDARY:
 		return "Secondary"
 	}
 	return "Wrong CurrentStackType"
