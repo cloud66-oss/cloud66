@@ -2,7 +2,6 @@ package cloud66
 
 type NotificationUploadParams struct {
 	Alerts               []Notification `json:"alerts"`
-	TargetStackUid       string         `json:"dest_stack_id,omitempty"`
 	ApplicationGroupName string         `json:"application_group_name,omitempty"`
 }
 
@@ -34,8 +33,8 @@ type NotificationResponseFailure struct {
 
 type NotificationResponseBody struct {
 	Successes     NotificationResponse        `json:"successes"`
-	Failures      NotificationResponseFailure `json:"failures"`
 	NotApplicable NotificationResponseFailure `json:"not_applicable"`
+	Failures      NotificationResponseFailure `json:"failures"`
 }
 
 func (c *Client) NotificationDownload(stackUid string) ([]Notification, error) {
@@ -54,23 +53,28 @@ func (c *Client) NotificationDownload(stackUid string) ([]Notification, error) {
 }
 
 func (c *Client) NotificationUploadStack(targetStackUid string, alerts []Notification) (*NotificationResponseBody, error) {
-	var notification NotificationUploadParams
-	notification.Alerts = alerts
-	notification.TargetStackUid = targetStackUid
-	return c.NotificationUpload(notification)
+	var notificationUploadParams NotificationUploadParams
+	notificationUploadParams.Alerts = alerts
+	return c.NotificationUpload(notificationUploadParams, &targetStackUid)
 }
 
 func (c *Client) NotificationUploadApplicationGroup(targetUid string, alerts []Notification) (*NotificationResponseBody, error) {
-	var notification NotificationUploadParams
-	notification.Alerts = alerts
-	notification.ApplicationGroupName = targetUid
-	return c.NotificationUpload(notification)
+	var notificationUploadParams NotificationUploadParams
+	notificationUploadParams.Alerts = alerts
+	notificationUploadParams.ApplicationGroupName = targetUid
+	return c.NotificationUpload(notificationUploadParams, nil)
 }
 
-func (c *Client) NotificationUpload(notification NotificationUploadParams) (*NotificationResponseBody, error) {
+func (c *Client) NotificationUpload(notification NotificationUploadParams, targetStackUid *string) (*NotificationResponseBody, error) {
 	var notifications NotificationResponseBody
+	var requestPath string
 
-	req, err := c.NewRequest("PATCH", "/alerts", notification, nil)
+	if targetStackUid != nil {
+		requestPath = "/stacks/" + *targetStackUid + "/alerts"
+	} else {
+		requestPath = "/application_groups/alerts"
+	}
+	req, err := c.NewRequest("PATCH", requestPath, notification, nil)
 	if err != nil {
 		return nil, err
 	}
