@@ -143,12 +143,12 @@ func (c *Client) StackList() ([]Stack, error) {
 	return result, nil
 }
 
-func (c *Client) StackListWithFilter(filter filterFunction) ([]Stack, error) {
+func (c *Client) StackListWithFilter(filter filterFunction, environment string) ([]Stack, error) {
 	queryStrings := make(map[string]string)
 	queryStrings["page"] = "1"
 
 	var p Pagination
-	var mid_result []Stack
+	var midResult []Stack
 	var stacksRes []Stack
 
 	for {
@@ -163,7 +163,7 @@ func (c *Client) StackListWithFilter(filter filterFunction) ([]Stack, error) {
 			return nil, err
 		}
 
-		mid_result = append(mid_result, stacksRes...)
+		midResult = append(midResult, stacksRes...)
 		if p.Current < p.Next {
 			queryStrings["page"] = strconv.Itoa(p.Next)
 		} else {
@@ -173,8 +173,8 @@ func (c *Client) StackListWithFilter(filter filterFunction) ([]Stack, error) {
 	}
 
 	var result []Stack
-	for _, item := range mid_result {
-		if filter(item) {
+	for _, item := range midResult {
+		if filter(item, environment) {
 			result = append(result, item)
 		}
 	}
