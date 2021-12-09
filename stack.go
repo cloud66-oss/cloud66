@@ -143,7 +143,7 @@ func (c *Client) StackList() ([]Stack, error) {
 	return result, nil
 }
 
-func (c *Client) StackListWithFilter(filter filterFunction, environment string) ([]Stack, error) {
+func (c *Client) StackListWithFilter(filter filterFunction, environment *string) ([]Stack, error) {
 	queryStrings := make(map[string]string)
 	queryStrings["page"] = "1"
 
