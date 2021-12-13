@@ -105,9 +105,9 @@ func ParseCurrentStack(param string) CurrentStackType {
 	if strings.EqualFold(param, "primary") {
 		return StkPrimary
 	}
-
 	if strings.EqualFold(param, "secondary") {
 		return StkSecondary
 	}
+	log.Fatal("Current should only have values \"primary\" or \"secondary\"")
 	return StkPrimary
 }
