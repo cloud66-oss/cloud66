@@ -1,6 +1,7 @@
 package cloud66
 
 import (
+	"log"
 	"strings"
 	"time"
 )
@@ -96,7 +97,8 @@ func (currentStackType *CurrentStackType) String() string {
 	case StkSecondary:
 		return "Secondary"
 	}
-	return "Wrong CurrentStackType"
+	log.Fatal("Current should only have values \"primary\" or \"secondary\"")
+	return ""
 }
 
 func ParseCurrentStack(param string) CurrentStackType {
