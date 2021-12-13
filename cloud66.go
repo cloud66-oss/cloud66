@@ -68,7 +68,7 @@ type Pagination struct {
 	Current  int
 }
 
-type filterFunction func(item interface{}, params ...interface{}) bool
+type stackEnvironmentFilterFunction func(item interface{}, environment *string) bool
 
 func (c *Client) Get(v interface{}, path string, queryStrings map[string]string, p *Pagination) error {
 	return c.APIReq(v, "GET", path, nil, queryStrings, p)

@@ -8,8 +8,8 @@ import (
 type CurrentStackType int
 
 const (
-	STACK_PRIMARY   CurrentStackType = 1
-	STACK_SECONDARY CurrentStackType = 2
+	StkPrimary   = CurrentStackType(1)
+	StkSecondary = CurrentStackType(2)
 )
 
 type FailoverGroup struct {
@@ -81,7 +81,7 @@ func (c *Client) UpdateFailoverGroup(failoverGroupUid string, primaryStack *stri
 	return c.DoReq(req, nil, nil)
 }
 
-func (c *Client) DeleteFailoverGrouop(failoverGroupUid string) error {
+func (c *Client) DeleteFailoverGroup(failoverGroupUid string) error {
 	req, err := c.NewRequest("DELETE", "/failover_groups/"+failoverGroupUid, nil, nil)
 	if err != nil {
 		return err
@@ -91,9 +91,9 @@ func (c *Client) DeleteFailoverGrouop(failoverGroupUid string) error {
 
 func (currentStackType *CurrentStackType) String() string {
 	switch *currentStackType {
-	case STACK_PRIMARY:
+	case StkPrimary:
 		return "Primary"
-	case STACK_SECONDARY:
+	case StkSecondary:
 		return "Secondary"
 	}
 	return "Wrong CurrentStackType"
@@ -101,11 +101,11 @@ func (currentStackType *CurrentStackType) String() string {
 
 func ParseCurrentStack(param string) CurrentStackType {
 	if strings.EqualFold(param, "primary") {
-		return STACK_PRIMARY
+		return StkPrimary
 	}
 
 	if strings.EqualFold(param, "secondary") {
-		return STACK_SECONDARY
+		return StkSecondary
 	}
-	return STACK_PRIMARY
+	return StkPrimary
 }
