@@ -1,6 +1,7 @@
 package cloud66
 
 import (
+	"strings"
 	"time"
 )
 
@@ -30,7 +31,7 @@ func (c *Client) FailoverGroupList() ([]FailoverGroup, error) {
 
 	var result []FailoverGroup
 
-	req, err := c.NewRequest("GET", "/elastic_addresses.json", nil, queryStrings)
+	req, err := c.NewRequest("GET", "/failover_groups.json", nil, queryStrings)
 	if err != nil {
 		return nil, err
 	}
@@ -43,36 +44,36 @@ func (c *Client) FailoverGroupList() ([]FailoverGroup, error) {
 	return result, nil
 }
 
-func (c *Client) AddFailoverGroup(primaryStack string, secondaryStack string, currentStack CurrentStackType) error {
+func (c *Client) AddFailoverGroup(primaryStack *string, secondaryStack *string, currentStack *CurrentStackType) error {
 	params := struct {
-		PrimaryStack   string           `json:"primary_stack_uid"`
-		SecondaryStack string           `json:"secondary_stack_uid"`
-		CurrentStack   CurrentStackType `json:"current_stack"`
+		PrimaryStack   *string           `json:"primary_stack_uid"`
+		SecondaryStack *string           `json:"secondary_stack_uid"`
+		CurrentStack   *CurrentStackType `json:"current_stack"`
 	}{
 		PrimaryStack:   primaryStack,
 		SecondaryStack: secondaryStack,
 		CurrentStack:   currentStack,
 	}
 
-	req, err := c.NewRequest("POST", "/elastic_addresses", params, nil)
+	req, err := c.NewRequest("POST", "/failover_groups", params, nil)
 	if err != nil {
 		return err
 	}
 	return c.DoReq(req, nil, nil)
 }
 
-func (c *Client) UpdateFailoverGroup(failoverGroupUid string, primaryStack string, secondaryStack string, currentStack CurrentStackType) error {
+func (c *Client) UpdateFailoverGroup(failoverGroupUid string, primaryStack *string, secondaryStack *string, currentStack *CurrentStackType) error {
 	params := struct {
-		PrimaryStack   string           `json:"primary_stack_uid"`
-		SecondaryStack string           `json:"secondary_stack_uid"`
-		CurrentStack   CurrentStackType `json:"current_stack"`
+		PrimaryStack   *string           `json:"primary_stack_uid"`
+		SecondaryStack *string           `json:"secondary_stack_uid"`
+		CurrentStack   *CurrentStackType `json:"current_stack"`
 	}{
 		PrimaryStack:   primaryStack,
 		SecondaryStack: secondaryStack,
 		CurrentStack:   currentStack,
 	}
 
-	req, err := c.NewRequest("PUT", "/elastic_addresses/"+failoverGroupUid, params, nil)
+	req, err := c.NewRequest("PUT", "/failover_groups/"+failoverGroupUid, params, nil)
 	if err != nil {
 		return err
 	}
@@ -81,7 +82,7 @@ func (c *Client) UpdateFailoverGroup(failoverGroupUid string, primaryStack strin
 }
 
 func (c *Client) DeleteFailoverGrouop(failoverGroupUid string) error {
-	req, err := c.NewRequest("DELETE", "/elastic_addresses/"+failoverGroupUid, nil, nil)
+	req, err := c.NewRequest("DELETE", "/failover_groups/"+failoverGroupUid, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -96,4 +97,15 @@ func (currentStackType *CurrentStackType) String() string {
 		return "Secondary"
 	}
 	return "Wrong CurrentStackType"
+}
+
+func ParseCurrentStack(param string) CurrentStackType {
+	if strings.EqualFold(param, "primary") {
+		return STACK_PRIMARY
+	}
+
+	if strings.EqualFold(param, "secondary") {
+		return STACK_SECONDARY
+	}
+	return STACK_PRIMARY
 }
