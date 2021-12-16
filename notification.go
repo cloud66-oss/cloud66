@@ -40,7 +40,7 @@ type NotificationResponseBody struct {
 func (c *Client) NotificationDownload(stackUid string) ([]Notification, error) {
 	var notifications []Notification
 
-	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/alerts", nil, nil)
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/notifications", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -70,9 +70,9 @@ func (c *Client) NotificationUpload(notification NotificationUploadParams, targe
 	var requestPath string
 
 	if targetStackUid != nil {
-		requestPath = "/stacks/" + *targetStackUid + "/alerts"
+		requestPath = "/stacks/" + *targetStackUid + "/notifications"
 	} else {
-		requestPath = "/application_groups/alerts"
+		requestPath = "/application_groups/notifications"
 	}
 	req, err := c.NewRequest("PATCH", requestPath, notification, nil)
 	if err != nil {
