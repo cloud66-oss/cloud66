@@ -47,6 +47,16 @@ func (s SslCertificate) Status() string {
 	return sslCertificateStatus[s.StatusCode]
 }
 
+func (s SslCertificate) NewType() string {
+	if s.Wildcard {
+		return "wildcard"
+	}
+	if s.Type == LetsEncryptSslCertificateType {
+		return "standard"
+	}
+	return "external"
+}
+
 func (c *Client) ListSslCertificates(stackUID string) ([]SslCertificate, error) {
 	queryStrings := make(map[string]string)
 	queryStrings["page"] = "1"
