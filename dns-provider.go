@@ -1,7 +1,6 @@
 package cloud66
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 )
@@ -15,14 +14,14 @@ type DnsProvider struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-func (c *Client) ListDnsProviders(accountId int) ([]DnsProvider, error) {
+func (c *Client) ListDnsProviders() ([]DnsProvider, error) {
 	queryStrings := make(map[string]string)
 	queryStrings["page"] = "1"
 	var p Pagination
 	var result []DnsProvider
 	var pageResult []DnsProvider
 	for {
-		req, err := c.NewRequest("GET", fmt.Sprintf("/accounts/%d/gateways.json", accountId), nil, nil)
+		req, err := c.NewRequest("GET", "/dns_providers.json", nil, nil)
 		if err != nil {
 			return nil, err
 		}
