@@ -21,7 +21,7 @@ func (c *Client) ListDnsProviders() ([]DnsProvider, error) {
 	var result []DnsProvider
 	var pageResult []DnsProvider
 	for {
-		req, err := c.NewRequest("GET", "/dns_providers.json", nil, nil)
+		req, err := c.NewRequest("GET", "/dns_providers.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
