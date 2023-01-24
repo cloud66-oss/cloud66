@@ -23,6 +23,7 @@ type SslCertificate struct {
 	SHA256Fingerprint       *string    `json:"sha256_fingerprint"`
 	CAName                  *string    `json:"ca_name"`
 	Type                    string     `json:"type"`
+	Wildcard                bool       `json:"wildcard"`
 	SSLTermination          bool       `json:"ssl_termination"`
 	HasIntermediateCert     bool       `json:"has_intermediate_cert"`
 	Certificate             *string    `json:"certificate"`
@@ -32,6 +33,7 @@ type SslCertificate struct {
 	CreatedAt               time.Time  `json:"created_at"`
 	UpdatedAt               time.Time  `json:"updated_at"`
 	ExpiresAt               *time.Time `json:"expires_at"`
+	DnsProviderUuid         *string    `json:"dns_provider_uuid"`
 }
 
 const LetsEncryptSslCertificateType = "lets_encrypt"
@@ -41,8 +43,18 @@ type wrappedSslCertificate struct {
 	SslCertificate *SslCertificate `json:"ssl_certificate"`
 }
 
-func (ssl_certificate SslCertificate) Status() string {
-	return sslCertificateStatus[ssl_certificate.StatusCode]
+func (s SslCertificate) Status() string {
+	return sslCertificateStatus[s.StatusCode]
+}
+
+func (s SslCertificate) NewType() string {
+	if s.Wildcard {
+		return "wildcard"
+	}
+	if s.Type == LetsEncryptSslCertificateType {
+		return "standard"
+	}
+	return "external"
 }
 
 func (c *Client) ListSslCertificates(stackUID string) ([]SslCertificate, error) {
