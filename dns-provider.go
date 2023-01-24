@@ -15,18 +15,18 @@ type DnsProvider struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-func (c *Client) ListDnsProviders(stackUID string) ([]DnsProvider, error) {
+func (c *Client) ListDnsProviders(accountId int) ([]DnsProvider, error) {
 	queryStrings := make(map[string]string)
 	queryStrings["page"] = "1"
 	var p Pagination
 	var result []DnsProvider
 	var pageResult []DnsProvider
 	for {
-		req, err := c.NewRequest("GET", fmt.Sprintf("/stacks/%s/dns_providers.json", stackUID), nil, queryStrings)
+		req, err := c.NewRequest("GET", fmt.Sprintf("/accounts/%d/gateways.json", accountId), nil, nil)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		pageResult = nil
 		err = c.DoReq(req, &pageResult, &p)
 		if err != nil {
