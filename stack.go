@@ -143,6 +143,39 @@ func (c *Client) StackList() ([]Stack, error) {
 	return result, nil
 }
 
+// StackListRemoteFilter function to fetch matching stacks, with filters occurring remotely
+func (c *Client) StackListRemoteFilter(nameFilter string, environmentFilter string) ([]Stack, error) {
+	queryStrings := make(map[string]string)
+	queryStrings["page"] = "1"
+	queryStrings["filter_name"] = nameFilter
+	queryStrings["filter_environment"] = environmentFilter
+
+	var p Pagination
+	var result []Stack
+	var stacksRes []Stack
+
+	for {
+		req, err := c.NewRequest("GET", "/stacks.json", nil, queryStrings)
+		if err != nil {
+			return nil, err
+		}
+
+		stacksRes = nil
+		err = c.DoReq(req, &stacksRes, &p)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, stacksRes...)
+		if p.Current < p.Next {
+			queryStrings["page"] = strconv.Itoa(p.Next)
+		} else {
+			break
+		}
+	}
+	return result, nil
+}
+
 func (c *Client) StackListWithFilter(filterFunction stackEnvironmentFilterFunction, environment *string) ([]Stack, error) {
 	queryStrings := make(map[string]string)
 	queryStrings["page"] = "1"
