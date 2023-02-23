@@ -2,6 +2,7 @@ package cloud66
 
 import (
 	"errors"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -147,10 +148,11 @@ func (c *Client) StackList() ([]Stack, error) {
 func (c *Client) StackListRemoteFilter(nameFilter, environmentFilter, gitRepoFilter, gitBranchFilter string) ([]Stack, error) {
 	queryStrings := make(map[string]string)
 	queryStrings["page"] = "1"
-	queryStrings["filter_name"] = nameFilter
-	queryStrings["filter_environment"] = environmentFilter
-	queryStrings["filter_git_repo"] = gitRepoFilter
-	queryStrings["filter_git_branch"] = gitBranchFilter
+
+	queryStrings["filter_name"] = url.QueryEscape(nameFilter)
+	queryStrings["filter_environment"] = url.QueryEscape(environmentFilter)
+	queryStrings["filter_git_repo"] = url.QueryEscape(gitRepoFilter)
+	queryStrings["filter_git_branch"] = url.QueryEscape(gitBranchFilter)
 
 	var p Pagination
 	var result []Stack
