@@ -144,11 +144,13 @@ func (c *Client) StackList() ([]Stack, error) {
 }
 
 // StackListRemoteFilter function to fetch matching stacks, with filters occurring remotely
-func (c *Client) StackListRemoteFilter(nameFilter string, environmentFilter string) ([]Stack, error) {
+func (c *Client) StackListRemoteFilter(nameFilter, environmentFilter, gitRepoFilter, gitBranchFilter string) ([]Stack, error) {
 	queryStrings := make(map[string]string)
 	queryStrings["page"] = "1"
 	queryStrings["filter_name"] = nameFilter
 	queryStrings["filter_environment"] = environmentFilter
+	queryStrings["filter_git_repo"] = gitRepoFilter
+	queryStrings["filter_git_branch"] = gitBranchFilter
 
 	var p Pagination
 	var result []Stack
