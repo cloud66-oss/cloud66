@@ -1,11 +1,8 @@
 github.com/cloud66/fayego v0.0.0-20161110052602-62f173dff4c0 h1:GkktgNNz2nSmRyrQi3LIdFmDpJg+llbnT3UuONUsMfQ=
 github.com/cloud66/fayego v0.0.0-20161110052602-62f173dff4c0/go.mod h1:BrNLMDh3u60pWlhgDP4LSqQnKVXZ7xuovBTurcVih3o=
-github.com/gorilla/websocket v0.0.0-20150811171432-b6ab76f1fe98 h1:VQR6w4PocLvhbzu1AtDRjW0RXe1gntyKTX2JYYX28kI=
-github.com/gorilla/websocket v0.0.0-20150811171432-b6ab76f1fe98/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
+github.com/gorilla/websocket v1.4.1 h1:q7AeDBpnBk8AogcD4DSag/Ukw/KV+YhzLj2bP5HvKCM=
+github.com/gorilla/websocket v1.4.1/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/khash/oauth v0.0.0-20161110045103-29933d91e1e3 h1:Fcu8vTCVxzD/QDa0IqdUcSRAgGL7GaJ3q0rUX0Hov1g=
 github.com/khash/oauth v0.0.0-20161110045103-29933d91e1e3/go.mod h1:5Nbm5zmT2bDJLjNwzOls9vWkj2Zu6k/NxszCXViXFPo=
 github.com/pborman/uuid v0.0.0-20161005151609-3d4f2ba23642 h1:J22llJ7OhnIIcOpVXVyG0DniMepToKlbCZrzcGbzwOE=
 github.com/pborman/uuid v0.0.0-20161005151609-3d4f2ba23642/go.mod h1:VyrYX9gd7irzKovcSS6BIIEwPRkP2Wm2m9ufcdFSJ34=
-gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
-gopkg.in/yaml.v2 v2.4.0 h1:D8xgwECY7CYvx+Y2n4sBz93Jn9JRvxdiyyo8CTfuKaY=
-gopkg.in/yaml.v2 v2.4.0/go.mod h1:RDklbk79AGWmwhnvt/jBztapEOGDOx6ZbXqjP6csGnQ=
