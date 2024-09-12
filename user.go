@@ -64,26 +64,27 @@ type User struct {
 	CloudStatus      string            `json:"cloud_status"`
 }
 
+type RegistryCredentials struct {
+	Username string `json:"username"`
+	Secret   string `json:"secret"`
+}
+
 func (c *Client) ListUsers() ([]User, error) {
 	queryStrings := make(map[string]string)
 	queryStrings["page"] = "1"
-
 	var p Pagination
 	var result []User
 	var userRes []User
-
 	for {
 		req, err := c.NewRequest("GET", "/users.json", nil, queryStrings)
 		if err != nil {
 			return nil, err
 		}
-
 		userRes = nil
 		err = c.DoReq(req, &userRes, &p)
 		if err != nil {
 			return nil, err
 		}
-
 		result = append(result, userRes...)
 		if p.Current < p.Next {
 			queryStrings["page"] = strconv.Itoa(p.Next)
@@ -91,7 +92,6 @@ func (c *Client) ListUsers() ([]User, error) {
 			break
 		}
 	}
-
 	return result, nil
 }
 
@@ -100,9 +100,17 @@ func (c *Client) GetUser(userId int) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	var userRes *User
 	return userRes, c.DoReq(req, &userRes, nil)
+}
+
+func (c *Client) GetRegistryCredentials() (*RegistryCredentials, error) {
+	req, err := c.NewRequest("GET", "/users/users/registry-credentials.json", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	var registryCredentials *RegistryCredentials
+	return registryCredentials, c.DoReq(req, &registryCredentials, nil)
 }
 
 func (c *Client) UpdateUser(userId int, user User) (*User, error) {

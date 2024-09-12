@@ -188,11 +188,11 @@ func (c *Client) DoReq(req *http.Request, v interface{}, p *Pagination) error {
 		}
 	}
 
-	var check_pagination bool
+	var checkPagination bool
 	if (req.Method == "GET") && (p != nil) {
-		check_pagination = true
+		checkPagination = true
 	} else {
-		check_pagination = false
+		checkPagination = false
 	}
 
 	httpClient := c.HTTP
@@ -235,7 +235,7 @@ func (c *Client) DoReq(req *http.Request, v interface{}, p *Pagination) error {
 		err = json.NewDecoder(buffer).Decode(v)
 	}
 
-	if (err == nil) && check_pagination {
+	if (err == nil) && checkPagination {
 		pagination := bytes.NewBuffer(r.Pagination)
 		err = json.NewDecoder(pagination).Decode(p)
 	}
