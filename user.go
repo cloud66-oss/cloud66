@@ -105,7 +105,7 @@ func (c *Client) GetUser(userId int) (*User, error) {
 }
 
 func (c *Client) GetRegistryCredentials() (*RegistryCredentials, error) {
-	req, err := c.NewRequest("GET", "/users/users/registry-credentials.json", nil, nil)
+	req, err := c.NewRequest("GET", "/users/registry-credentials.json", nil, nil)
 	if err != nil {
 		return nil, err
 	}
