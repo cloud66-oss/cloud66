@@ -56,6 +56,7 @@ type Client struct {
 	Config            *ClientConfig
 	Activity          string
 	ActivityID        string
+	ActivitySingle    string
 }
 
 type Response struct {
@@ -156,12 +157,19 @@ func (c *Client) NewRequest(method, path string, body interface{}, queryStrings 
 	if c.AccountId != nil {
 		req.Header.Set("X-Account", strconv.Itoa(*c.AccountId))
 	}
+	// X-Activity is a unique activity request or group of requests
 	if c.Activity != "" {
 		req.Header.Set("X-Activity", c.Activity)
 	}
+	// X-Activity-ID reports a unique activity ID across all shared activity requests
 	if c.ActivityID != "" {
-		req.Header.Set("X-Activity-ID", c.Activity)
+		req.Header.Set("X-Activity-ID", c.ActivityID)
 	}
+	// X-Activity-Single is the same as X-Activity but is reported only once
+	if c.ActivitySingle != "" {
+		req.Header.Set("X-Activity-Single", c.ActivitySingle)
+	}
+
 	useragent := c.UserAgent
 	if useragent == "" {
 		useragent = c.Config.DefaultUserAgent
@@ -209,6 +217,10 @@ func (c *Client) DoReq(req *http.Request, v interface{}, p *Pagination) error {
 	}
 
 	res, err := httpClient.Do(req)
+
+	// we only capture "ActivitySingle" once; from this point on ActivitySingle is cleared
+	c.ActivitySingle = ""
+
 	if err != nil {
 		return err
 	}
