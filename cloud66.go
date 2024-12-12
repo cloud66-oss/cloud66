@@ -55,6 +55,7 @@ type Client struct {
 	AdditionalHeaders http.Header
 	Config            *ClientConfig
 	Activity          string
+	ActivityID        string
 }
 
 type Response struct {
@@ -157,6 +158,9 @@ func (c *Client) NewRequest(method, path string, body interface{}, queryStrings 
 	}
 	if c.Activity != "" {
 		req.Header.Set("X-Activity", c.Activity)
+	}
+	if c.ActivityID != "" {
+		req.Header.Set("X-Activity-ID", c.Activity)
 	}
 	useragent := c.UserAgent
 	if useragent == "" {
