@@ -28,6 +28,9 @@ type OperationLogEntry struct {
 	Source *string `json:"s"`
 	// echelon — depth from the root operation (0 = root)
 	Echelon int `json:"e"`
+	// uid of the child operation that produced the entry; only present when
+	// include_children=true and the entry came from a descendant, nil otherwise
+	OperationUid *string `json:"operation_uid,omitempty"`
 }
 
 // OperationLogs returns all log entries for the operation identified by its UID.
