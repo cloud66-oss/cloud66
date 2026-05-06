@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// operation log severity levels — match the server-side LogUtils scale.
+// OperationLogSeverity values mirror the server-side LogUtils scale.
 const (
 	OperationLogSeverityTrace  = 0
 	OperationLogSeverityDebug  = 1
@@ -22,7 +22,7 @@ type OperationLogEntry struct {
 	Severity int `json:"v"`
 	// human-readable log message
 	Message string `json:"m"`
-	// timestamp in ISO 8601 / RFC 3339
+	// timestamp in RFC 3339 (e.g. 2025-01-15T10:00:05Z)
 	Timestamp time.Time `json:"t"`
 	// source operation when nested under a parent; nil for root entries
 	Source *string `json:"s"`
@@ -50,7 +50,7 @@ func (c *Client) OperationLogs(operationUid string, minSeverity *int, includeChi
 
 	var p Pagination
 	var result []OperationLogEntry
-	var pageRes []OperationLogEntry
+	var operationLogRes []OperationLogEntry
 
 	for {
 		req, err := c.NewRequest("GET", "/operations/"+operationUid+"/logs.json", nil, queryStrings)
@@ -58,13 +58,13 @@ func (c *Client) OperationLogs(operationUid string, minSeverity *int, includeChi
 			return nil, err
 		}
 
-		pageRes = nil
-		err = c.DoReq(req, &pageRes, &p)
+		operationLogRes = nil
+		err = c.DoReq(req, &operationLogRes, &p)
 		if err != nil {
 			return nil, err
 		}
 
-		result = append(result, pageRes...)
+		result = append(result, operationLogRes...)
 		// stop when there's no next page (current page == last page)
 		if p.Current < p.Next {
 			queryStrings["page"] = strconv.Itoa(p.Next)
