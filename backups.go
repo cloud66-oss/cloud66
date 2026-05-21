@@ -46,6 +46,9 @@ type ManagedBackup struct {
 	VerifyResult  string    `json:"verify_result"`
 	StoragePath   string    `json:"storage_path"`
 	SkipTables    string    `json:"skip_tables"`
+	// true for logical (text) backups, false for binary/physical backups;
+	// nil when the backup job has been pruned, so the type is unknown
+	LogicalBackup *bool `json:"logical_backup"`
 }
 
 type BackupSegmentIndex struct {
