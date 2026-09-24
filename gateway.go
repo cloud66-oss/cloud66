@@ -69,6 +69,25 @@ func (c *Client) RemoveGateway(accountId int, gatewayId int) error {
 	return nil
 }
 
+// GatewayUpdate holds the gateway fields to change; empty fields are left out of the request and keep their value.
+type GatewayUpdate struct {
+	Name      string `json:"name,omitempty"`
+	Address   string `json:"address,omitempty"`
+	Username  string `json:"username,omitempty"`
+	PrivateIp string `json:"private_ip,omitempty"`
+}
+
+// UpdateGatewayAttributes changes a gateway's name, address, username or private ip without touching its key.
+// it never sends ttl or content: the api reads any ttl below 2, zero included, as "close the gateway".
+func (c *Client) UpdateGatewayAttributes(accountId int, gatewayId int, update GatewayUpdate) error {
+	req, err := c.NewRequest("PUT", fmt.Sprintf("/accounts/%d/gateways/%d.json", accountId, gatewayId), update, nil)
+	if err != nil {
+		return err
+	}
+
+	return c.DoReq(req, nil, nil)
+}
+
 func (c *Client) UpdateGateway(accountId int, gatewayId int, keyContent string, ttl int) error {
 	params := struct {
 		Content string `json:"content"`
