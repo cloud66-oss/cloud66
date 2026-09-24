@@ -65,6 +65,9 @@ func TestUpdateGatewayAttributesNeverSendsTtlOrContent(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
+	if captured.method != "PUT" {
+		t.Fatalf("no PUT was sent, got method %q", captured.method)
+	}
 	// the server closes the gateway on any ttl below 2, so even a zero ttl here would lock the customer out
 	for _, key := range []string{"ttl", "content"} {
 		if _, present := captured.body[key]; present {

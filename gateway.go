@@ -78,8 +78,7 @@ type GatewayUpdate struct {
 }
 
 // UpdateGatewayAttributes changes a gateway's name, address, username or private ip without touching its key.
-// it never sends ttl or content: the server treats any ttl below 2 (a zero included) as a request to close the
-// gateway and invalidate its key.
+// it never sends ttl or content: the api reads any ttl below 2, zero included, as "close the gateway".
 func (c *Client) UpdateGatewayAttributes(accountId int, gatewayId int, update GatewayUpdate) error {
 	req, err := c.NewRequest("PUT", fmt.Sprintf("/accounts/%d/gateways/%d.json", accountId, gatewayId), update, nil)
 	if err != nil {
